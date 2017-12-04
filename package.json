@@ -1,0 +1,26 @@
+{
+  "name": "ts-irc",
+  "version": "1.0.0",
+  "description": "IRC implementation in TypeScript",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "./node_modules/typescript/bin/tsc",
+    "watch": "npm run build -- --watch",
+    "start": "node dist/main.js",
+    "postinstall": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IZEDx/ts-irc.git"
+  },
+  "author": "Niklas Kühtmann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/IZEDx/ts-irc/issues"
+  },
+  "homepage": "https://github.com/IZEDx/ts-irc#readme",
+  "devDependencies": {
+    "@types/node": "^8.0.53",
+    "typescript": "^2.6.2"
+  }
+}
