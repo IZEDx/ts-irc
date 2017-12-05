@@ -12,8 +12,8 @@
         "noImplicitAny": true,
         "suppressImplicitAnyIndexErrors": true,
         "lib": [
-        "es2017",
-        "esnext.asynciterable"
+            "es2017",
+            "esnext.asynciterable"
         ],
         "outDir": "dist"
     },

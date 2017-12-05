@@ -8,7 +8,8 @@ export default class Transciever implements IPipeable,IActor{
     }
 
     async tell(msg : string){
-        await this.socket.write(msg);
+        console.log(msg);
+        this.socket.write(msg);
     }
 
     async shutdown(){

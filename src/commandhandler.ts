@@ -15,7 +15,7 @@ export function Command(name? : string) {
     }
 }
 
-export class CommandHandler implements IActor{
+export default class CommandHandler implements IActor{
     private libs : CommandLib[] = []; 
 
     constructor(...libs : CommandLib[]){
@@ -59,8 +59,9 @@ export class CommandHandler implements IActor{
         if(parts.length == 0)return;
 
         let fn = this.lookUp(parts[0].toLowerCase());
+        parts.splice(0,1);
         if(fn != undefined){
-            let result = await fn(target, parts.splice(0,1), prefix != "" ? prefix : undefined);
+            let result = await fn(target, parts, prefix != "" ? prefix : undefined);
             if(result) target.tell(result);
         }else{
             target.tell("Command not found: " + msg);
@@ -68,6 +69,6 @@ export class CommandHandler implements IActor{
     }
 
     async shutdown(sender : IActor){
-        
+
     }
 }

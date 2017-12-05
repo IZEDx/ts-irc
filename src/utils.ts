@@ -57,9 +57,9 @@ export async function* faucet(pipeable : IPipeable) : AsyncIterable<string>{
 
 // Subset of NodeJS.EventEmitter requiring the events "data", "end" and "error". Can be listened on until completion.
 export interface IDataEvent{
-    on(event : "data",  cb : (data : Buffer)    => void) : void;
-    on(event : "close",   cb : ()                 => void) : void;
-    on(event : "error", cb : (err : Error)      => void) : void;
+    on(event : "data",  cb : (data : Buffer)        => void) : void;
+    on(event : "close", cb : (had_error : Boolean)  => void) : void;
+    on(event : "error", cb : (error : Error)        => void) : void;
 }
 
 // types implementing IDataEvent and NodeJS.WriteStream
@@ -77,21 +77,34 @@ export async function* dataEvent(stream : IDataEvent) : AsyncIterable<Buffer> {
     let buffered : Buffer[]                     = [];
     let ended                                   = false;
 
-    stream.on("error",  (err  : Error)  => waitingReject(err) );
-    stream.on("close",    ()              => ended = true );
-    stream.on("data",   (data : Buffer) => {
+    stream.on("error", err => waitingReject && waitingReject(err) );
+    stream.on("close", had_error =>{ 
+        ended = !had_error;
+        if(waitingReject) waitingReject(new Error("Event closed"));
+    });
+    stream.on("data",  data => {
         if(!waitingResolve) return buffered.push(data);
         waitingResolve(data);
         waitingResolve = null;
     });
 
-    while(!ended){
-        yield await new Promise<Buffer>( (resolve, reject) => {
-            waitingReject = reject;
-            if(buffered.length == 0) return waitingResolve = resolve;
+    let error : Error;
+    while(true){
+        try{
+            yield await new Promise<Buffer>( (resolve, reject) => {
+                waitingReject = reject;
+                if(buffered.length == 0) return waitingResolve = resolve;
 
-            resolve(buffered[0]);
-            buffered.splice(0,1);
-        });
+                resolve(buffered[0]);
+                buffered.splice(0,1);
+            });
+        }catch(err){
+            error = err;
+            break;
+        }
+    }
+    
+    if(!ended){
+        throw error;
     }
 }

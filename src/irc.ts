@@ -1,45 +1,22 @@
 
 
 import {createServer, Socket, Server} from "net";
-import Transciever from "./transciever";
-import {CommandHandler, CommandLib, Command} from "./commands";
+import Client from "./client";
+import CommandHandler, {CommandLib, Command} from "./commandhandler";
 import {Reply} from "./reply";
 
-export class Client extends Transciever{
-    private _username : string;
-    private _nick : string;
-    private _fullname : string;
-    get username(){ return this._username; }
-    get nick(){ return this._nick; }
-    get fullname(){ return this._fullname; }
-
-    constructor(socket : Socket){
-        super(socket);
-    }
-
-    set nick(name : string){
-        this._nick = name;
-    }
-    set username(name : string){
-        if(this._username) return;
-        this._username = name;
-    }
-    set fullname(name : string){
-        if(this._fullname) return;
-        this._fullname = name;
-    }
-}
 
 export default class IRCServer{
     private _port : number;
     private _server : Server;
-    private _commandHandler : CommandHandler = new CommandHandler();
+    private _commandHandler : CommandHandler;
     private _clients : Client[] = [];
 
     get port() { return this._port; }
 
     constructor(){
         this._server = createServer(this.onConnection.bind(this));
+        this._commandHandler = new CommandHandler(new BasicCommands());
     }
 
     async onConnection(socket : Socket){
@@ -53,9 +30,9 @@ export default class IRCServer{
         console.log(`${socket.remoteAddress} disconnected.`);
     }
 
-    listen(port : number){
+    async listen(port : number){
         this._port = port;
-        this._server.listen(port);
+        await this._server.listen(port);
     }
 }
 
@@ -63,16 +40,19 @@ export default class IRCServer{
 
 class BasicCommands extends CommandLib{
     @Command() 
-    async nick(client : Client, args? : string[]){
+    async NICK(client : Client, args? : string[]){
         if(!args || args.length != 1) return;
         client.nick = args[0];
     }
 
     @Command() 
-    async user(client : Client, args? : string[]){
+    async USER(client : Client, args? : string[]){
         if(!args || args.length != 2) return;
         client.username = args[0];
         client.fullname = args[1]
-        if(client.nick) client.tell(`Welcome ${client.fullname}`);
+        if(client.nick){
+            console.log(`${client.username} authed.`);
+            client.tell(`Welcome ${client.fullname}`);
+        }
     }
 }

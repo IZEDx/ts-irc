@@ -14,3 +14,5 @@ export function main(argv : string[]){
 }
 
 main(process.argv); 
+
+export default IRCServer;
