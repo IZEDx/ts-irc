@@ -8,9 +8,9 @@ export function main(argv : string[]){
     }
 
     let port    = parseInt(argv[2]);
-    let server  = new IRCServer();
+    let server  = new IRCServer(port);
 
-    server.listen(port);
+    server.listen();
 }
 
 main(process.argv); 

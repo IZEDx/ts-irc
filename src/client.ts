@@ -1,12 +1,12 @@
 import Transciever from "./transciever";
 import {Socket, Server} from "net";
 
-export default class Client extends Transciever{
+export default class Client<T> extends Transciever{
     public nick : string;
     private _username : string;
     private _fullname : string;
     readonly address : string;
-    readonly server : Server;
+    readonly server : T;
 
     get username()  { return this._username;    }
     get fullname()  { return this._fullname;    }
@@ -14,7 +14,7 @@ export default class Client extends Transciever{
         return !!(this.nick && this._username);      
     }
 
-    constructor(socket : Socket, server : Server){
+    constructor(socket : Socket, server : T){
         super(socket);
         this.server = server;
         this.address = socket.remoteAddress || "unknown";

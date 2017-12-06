@@ -6,38 +6,40 @@ import CommandHandler, {Command} from "./commandhandler";
 import * as Reply from "./reply";
 import Transciever from "./transciever";
 
+export type IRCClient = Client<IRCServer>;
 
 export default class IRCServer{
-    private _port : number;
-    private _server : Server;
-    private _commandHandler : CommandHandler;
-    private _clients : Client[] = [];
+    readonly port : number;
+    readonly server : Server;
+    readonly commandHandler : CommandHandler;
+    readonly clients : IRCClient[] = [];
+    private _hostname = "localhost";
 
-    get port() { return this._port; }
-    get clients() { return this._clients.filter(client => client.authed); }
-
-    constructor(){
-        this._server = createServer();
-        this._server.on("connection", async socket => {
-            let client = new Client(socket, this._server);
-            this._clients.push(client);
-            await this.onConnection(client);
-            this._clients.splice(this._clients.indexOf(client), 1);
-        });
-        this._commandHandler = new CommandHandler();
+    get hostname() : string{
+        return this._hostname;
     }
 
-    async onConnection(client : Client){
+    constructor(port : number){
+        this.port = port;
+        this.server = createServer();
+        this.server.on("connection", async socket => await this.onConnection(socket));
+        this.commandHandler = new CommandHandler();
+    }
+
+    async onConnection(socket : Socket){
+        let client = new Client(socket, this);
+
+        this.clients.push(client);
         console.log(`New client connected from ${client.address}.`);
 
-        await client.pipe(this._commandHandler, client);
+        await client.pipe(this.commandHandler, client);
 
         console.log(`${client.address} disconnected.`);
+        this.clients.splice(this.clients.indexOf(client), 1);
     }
 
-    async listen(port : number){
-        this._port = port;
-        await this._server.listen(port);
+    async listen(){
+        await this.server.listen(this.port);
     }
 }
 
@@ -45,20 +47,20 @@ export default class IRCServer{
 
 class BasicCommands{
     @Command
-    static async NICK(client : Client, prefix : string, args : string[]){
+    static async NICK(client : IRCClient, prefix : string, args : string[]){
         if(args.length < 1) return;
         client.nick = args[0];
     }
 
     @Command 
-    static async USER(client : Client, prefix : string, args : string[]){
+    static async USER(client : IRCClient, prefix : string, args : string[]){
         if(args.length < 2) return;
         client.username = args[0];
         client.fullname = args[1];
 
         if(client.nick){
             console.log(`${client.nick}!${client.username}@${client.address} authed.`);
-            client.tell(Reply.Welcome(client.server.address().address, client));
+            client.tell(Reply.Welcome(client.server.hostname, client));
         }
     }
 }
