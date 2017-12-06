@@ -1,37 +1,14 @@
 
 import {IPipeable, IActor, isActor} from "./utils";
 
-type CommandFunction = (sender : IActor, args : string[], prefix? : string) => Promise<string|undefined>;
+type CommandFunction = (sender : IActor, prefix : string, args : string[]) => Promise<string|undefined>;
 
-export class CommandLib{
-    commands : {name : string, fn : CommandFunction}[];
-}
-
-export function Command(name? : string) {
-    return function (target : CommandLib, propertyKey: string, descriptor: PropertyDescriptor) {
-        name = name || propertyKey;
-        if(!target.commands) target.commands = [];
-        target.commands.push({name : name.toLowerCase(), fn : target[propertyKey]});
-    }
+const commands : Map<string, CommandFunction> = new Map();
+export function Command(target : Function, propertyKey: string, descriptor: PropertyDescriptor) {
+    commands.set(propertyKey.toLowerCase(), target[propertyKey]);
 }
 
 export default class CommandHandler implements IActor{
-    private libs : CommandLib[] = []; 
-
-    constructor(...libs : CommandLib[]){
-        this.libs = libs;
-    }
-
-    addLib(lib : CommandLib){
-        if(this.libs.indexOf(lib) < 0) this.libs.push(lib);
-    }
-
-    lookUp(name: string) : CommandFunction|undefined{
-        for(let {commands} of this.libs){
-            let found = commands.find(o => o.name == name);
-            return found && found.fn;
-        }
-    }
 
     async tell(msg : string, target : IActor){
         let prefix : string = "";
@@ -58,10 +35,11 @@ export default class CommandHandler implements IActor{
         parts = parts.map(x => x.trim()).filter(x => x.length > 0);
         if(parts.length == 0)return;
 
-        let fn = this.lookUp(parts[0].toLowerCase());
+        console.log(parts[0], commands);
+        let fn = commands.get(parts[0].toLowerCase());
         parts.splice(0,1);
         if(fn != undefined){
-            let result = await fn(target, parts, prefix != "" ? prefix : undefined);
+            let result = await fn(target, prefix, parts);
             if(result) target.tell(result);
         }else{
             target.tell("Command not found: " + msg);

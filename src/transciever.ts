@@ -1,14 +1,13 @@
 import {IPipeable, IActor, dataEvent, NodeDataStream} from "./utils";
 
 export default class Transciever implements IPipeable,IActor{
-    private socket : NodeDataStream;
+    protected socket : NodeDataStream;
 
     constructor(socket : NodeDataStream){
         this.socket = socket;
     }
 
     async tell(msg : string){
-        console.log(msg);
         this.socket.write(msg);
     }
 

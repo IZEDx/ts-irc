@@ -1,21 +1,25 @@
 import Transciever from "./transciever";
-import {Socket} from "net";
+import {Socket, Server} from "net";
 
 export default class Client extends Transciever{
+    public nick : string;
     private _username : string;
-    private _nick : string;
     private _fullname : string;
-    get username(){ return this._username; }
-    get nick(){ return this._nick; }
-    get fullname(){ return this._fullname; }
+    readonly address : string;
+    readonly server : Server;
 
-    constructor(socket : Socket){
+    get username()  { return this._username;    }
+    get fullname()  { return this._fullname;    }
+    get authed() : boolean{ 
+        return !!(this.nick && this._username);      
+    }
+
+    constructor(socket : Socket, server : Server){
         super(socket);
+        this.server = server;
+        this.address = socket.remoteAddress || "unknown";
     }
 
-    set nick(name : string){
-        this._nick = name;
-    }
     set username(name : string){
         if(this._username) return;
         this._username = name;
