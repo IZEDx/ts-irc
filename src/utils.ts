@@ -107,3 +107,10 @@ export async function* dataEvent(stream : IDataEvent) : AsyncIterable<Buffer> {
         throw error;
     }
 }
+
+
+export interface IParser<T>{
+    parse(msg : string) : Promise<T>;
+}
+
+export type IActorParser<T> = IParser<T> & IActor<string, void, T>;

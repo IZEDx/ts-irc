@@ -1,4 +1,4 @@
-import {IActor} from "./utils";
+import {IActor, IParser, IActorParser, AsyncIterable} from "./utils";
 
 export type Step = {p : number, c : string, prev : Step};
 export type StepFunction = (step : Step) => StepFunction;
@@ -75,7 +75,7 @@ export class State implements IActor<Step>{
     }
 }
 
-export default class Parser implements IActor<string, void, State>{
+export class StateParser implements IActorParser<SerializedState>{
     private _target : IActor;
     private _state : State = new State("", "", []);
     private _p = 0;
@@ -84,19 +84,74 @@ export default class Parser implements IActor<string, void, State>{
     constructor(){
     }   
 
-    async tell(c : string) : Promise<State>{
+    async tell(c : string) : Promise<SerializedState>{
         this._step = {c : c, p : this._p++, prev : this._step};
         await this._state.tell(this._step);
-        return this._state;
+        return this._state.serialize();
     }
 
-    async parse(msg : string) : Promise<State>{
+    async parse(msg : string) : Promise<SerializedState>{
         console.log(`"${msg}"`);
         for(let c of msg) await this.tell(c);
         if(!this._state.finished) throw("Invalid Message");
-        return this._state;
+        return this._state.serialize();
     }
 
     async shutdown(){
     }
 }
+
+
+export class OperatorParser implements IParser<SerializedState>{
+    constructor(){
+    }   
+
+    async parse(msg : string) : Promise<SerializedState>{
+        let prefix  = "";
+        let command = "";
+        let parts : string[] = [];
+        let segments = msg.split(":");
+        if(segments.length == 0) return {prefix : "", command : "", args: []};
+
+        if(/^\s*:/i.test(msg)){             // Contains prefix
+            let p = segments[1].split(" ");
+            prefix = p[0];
+            p.splice(0,1)
+            parts.push(...p);
+            segments.splice(0,2);
+
+        }else{                               // No Prefix
+            let p = segments[0].split(" ");
+            parts.push(...p);
+            segments.splice(0,1);
+        }
+
+        if(segments.length >= 1) parts.push(segments.join(":"));
+
+        parts = parts.map(x => x.trim()).filter(x => x.length > 0);
+
+
+        if(parts.length > 0){
+            command = parts[0].toLowerCase();
+            parts.splice(0,1);
+        }
+
+        return {
+            prefix : prefix,
+            command : command,
+            args : parts
+        }
+    }
+}
+
+
+export async function* parsePercentage(msg : string) : AsyncIterable<{state : SerializedState, p : number}>{
+    yield;
+
+    let parser = new StateParser(), i = 0;
+    for(let c of msg){
+        yield {state : await parser.tell(c), p : msg.length/100*i++};
+    }
+
+    return;
+}   
