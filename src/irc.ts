@@ -13,14 +13,11 @@ export default class IRCServer{
     readonly server : Server;
     readonly commandHandler : CommandHandler;
     readonly clients : IRCClient[] = [];
-    private _hostname = "localhost";
+    readonly hostname : string;
 
-    get hostname() : string{
-        return this._hostname;
-    }
-
-    constructor(port : number){
+    constructor(port : number, hostname = "localhost"){
         this.port = port;
+        this.hostname = hostname;
         this.server = createServer();
         this.server.on("connection", async socket => await this.onConnection(socket));
         this.commandHandler = new CommandHandler();

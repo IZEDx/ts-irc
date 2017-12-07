@@ -5,9 +5,9 @@ export interface AsyncIterable<T>{[Symbol.asyncIterator](): AsyncIterator<T>;}
 import {Socket} from "net";
 
 
-export interface IActor<T = string, K = void>{
-    tell(msg : T, sender? : IActor<T, K>) : Promise<K|undefined>;
-    shutdown(sender : IActor<T, K>) : Promise<void>;
+export interface IActor<T = string, K = string, P = void>{
+    tell(msg : T, sender? : IActor<K, any>) : Promise<P>;
+    shutdown?(sender : IActor<K, any>) : Promise<void>;
 }
 export function isActor(object : any) : object is IActor{
     return 'tell' in object && 'shutdown' in object;
@@ -16,12 +16,11 @@ export function isActor(object : any) : object is IActor{
 
 
 export interface IPipeable<K = void>{
-    pipe(sender : IActor) : Promise<K|undefined>;
+    pipe(target : IActor) : Promise<K|undefined>;
 }
 export function isPipeable(object : any) : object is IPipeable{
     return 'run' in object;
 }
-
 
 export async function* faucet(pipeable : IPipeable) : AsyncIterable<string>{
     let waiting  : ((data : string) => void)|null;
@@ -103,7 +102,7 @@ export async function* dataEvent(stream : IDataEvent) : AsyncIterable<Buffer> {
             break;
         }
     }
-    
+
     if(!ended){
         throw error;
     }
