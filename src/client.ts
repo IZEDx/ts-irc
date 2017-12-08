@@ -13,6 +13,13 @@ export default class Client<T> extends Transciever{
     get authed() : boolean{ 
         return !!(this.nick && this._username);      
     }
+    get identifier() {
+        if(this.authed){
+            return this.nick + "!" + this._username + "@" + this.address;
+        }else{
+            return this.address;
+        }
+    }
 
     constructor(socket : Socket, server : T){
         super(socket);
@@ -31,5 +38,10 @@ export default class Client<T> extends Transciever{
 
     async tell(msg : string){
         super.tell(msg.trim() + "\r\n");
+    }
+
+    disconnect(){
+        this.socket.end();
+        this.socket.destroy();
     }
 }

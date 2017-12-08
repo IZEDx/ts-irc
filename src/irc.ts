@@ -31,7 +31,7 @@ export default class IRCServer{
 
         await client.pipe(this.commandHandler, client);
 
-        log(`${client.address} disconnected.`);
+        log(`${client.identifier} disconnected.`);
         this.clients.splice(this.clients.indexOf(client), 1);
     }
 
@@ -42,6 +42,17 @@ export default class IRCServer{
     async getClients<T extends keyof IRCClient>(where : T, equals : IRCClient[T]) : Promise<IRCClient[]>{
         return this.clients.filter(c => c.authed).filter(c => c[where] == equals);
     }
+
+    async broadcast(msg : string, clients? : IRCClient[]){
+        if(!clients) clients = this.clients.filter(c => c.authed);
+        let promises : Promise<void>[] = [];
+        
+        for(let c of clients){
+            promises.push(c.tell(msg));
+        }
+
+        await Promise.all(promises);
+    }
 }
 
 
@@ -51,12 +62,15 @@ class BasicCommands{
     static async NICK(client : IRCClient, prefix : string, args : string[]){
         if(args.length < 1) return;
 
-        if((await client.server.getClients("nick", args[0])).length > 0) return;
+        if((await client.server.getClients("nick", args[0])).length > 0){
+            client.tell(Reply.ErrNicknameInUse(client.server.hostname, args[0]));
+            return;
+        }
 
         let oldnick = client.nick;
         client.nick = args[0];
         if(client.authed && oldnick){
-            log(`${client.nick}!${client.username}@${client.address} changed nick from "${oldnick}" to "${client.nick}".`);
+            log(`${client.identifier} changed nick from "${oldnick}" to "${client.nick}".`);
         }else{
             log(`${client.address} set their nick to ${client.nick}`);
         }
@@ -80,5 +94,11 @@ class BasicCommands{
             log(`${client.nick}!${client.username}@${client.address} authed.`);
             client.tell(Reply.Welcome(client.server.hostname, client));
         }
+    }
+
+    @Command
+    static async QUIT(client : IRCClient, prefix : string, args : string[]){
+            log(`${client.identifier} attempts to disconnect with reason: ${args[0] || "Not given."}`);
+            client.disconnect();
     }
 }
