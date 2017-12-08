@@ -114,3 +114,5 @@ export interface IParser<T>{
 }
 
 export type IActorParser<T> = IParser<T> & IActor<string, void, T>;
+
+export const log = console.log;

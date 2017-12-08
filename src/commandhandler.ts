@@ -1,6 +1,6 @@
 
-import {IPipeable, IActor, isActor} from "./utils";
-import {SerializedState, parsePercentage, } from "./parser";
+import {IActor, IParser} from "./utils";
+import {SerializedState} from "./parser";
 
 type CommandFunction = (sender : IActor, prefix : string, args : string[]) => Promise<string|undefined>;
 
@@ -9,25 +9,18 @@ export function Command(target : Function, propertyKey: string, descriptor: Prop
     commands.set(propertyKey.toLowerCase(), target[propertyKey]);
 }
 
+export {OperatorParser, StateParser} from "./parser";
 
 export default class CommandHandler implements IActor{
+    readonly parser : IParser<SerializedState>;
 
-    async parseByCharacter(msg : string) : Promise<SerializedState>{
-        console.log("Parsing: " + msg);
-        let state : SerializedState = <any>{};
-        for await(let p of parsePercentage(msg)){
-            console.log("..."+p+"%");
-            state = p.state;
-        }
-        console.log("Done. ", state);
-
-        return state;
+    constructor(parser : IParser<SerializedState>){
+        this.parser = parser;
     }
-
 
     async tell(msg : string, target : IActor){
         
-        let {prefix, command, args} = await this.parseByCharacter(msg);
+        let {prefix, command, args} = await this.parser.parse(msg); // this.parseByCharacter(msg, true);
 
         console.log(prefix, command, args);
 

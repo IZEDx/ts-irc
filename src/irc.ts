@@ -2,9 +2,9 @@
 
 import {createServer, Socket, Server} from "net";
 import Client from "./client";
-import CommandHandler, {Command} from "./commandhandler";
+import CommandHandler, {Command, OperatorParser} from "./commandhandler";
 import * as Reply from "./reply";
-import Transciever from "./transciever";
+import {log} from "./utils";
 
 export type IRCClient = Client<IRCServer>;
 
@@ -20,23 +20,27 @@ export default class IRCServer{
         this.hostname = hostname;
         this.server = createServer();
         this.server.on("connection", async socket => await this.onConnection(socket));
-        this.commandHandler = new CommandHandler();
+        this.commandHandler = new CommandHandler(new OperatorParser());
     }
 
     async onConnection(socket : Socket){
         let client = new Client(socket, this);
 
         this.clients.push(client);
-        console.log(`New client connected from ${client.address}.`);
+        log(`New client connected from ${client.address}.`);
 
         await client.pipe(this.commandHandler, client);
 
-        console.log(`${client.address} disconnected.`);
+        log(`${client.address} disconnected.`);
         this.clients.splice(this.clients.indexOf(client), 1);
     }
 
     async listen(){
         await this.server.listen(this.port);
+    }
+
+    async getClients<T extends keyof IRCClient>(where : T, equals : IRCClient[T]) : Promise<IRCClient[]>{
+        return this.clients.filter(c => c.authed).filter(c => c[where] == equals);
     }
 }
 
@@ -46,17 +50,34 @@ class BasicCommands{
     @Command
     static async NICK(client : IRCClient, prefix : string, args : string[]){
         if(args.length < 1) return;
+
+        if((await client.server.getClients("nick", args[0])).length > 0) return;
+
+        let oldnick = client.nick;
         client.nick = args[0];
+        if(client.authed && oldnick){
+            log(`${client.nick}!${client.username}@${client.address} changed nick from "${oldnick}" to "${client.nick}".`);
+        }else{
+            log(`${client.address} set their nick to ${client.nick}`);
+        }
+
+        if(client.username && client.fullname){
+            log(`${client.nick}!${client.username}@${client.address} authed.`);
+            client.tell(Reply.Welcome(client.server.hostname, client));
+        }
     }
 
     @Command 
     static async USER(client : IRCClient, prefix : string, args : string[]){
         if(args.length < 2) return;
+
+        if((await client.server.getClients("username", args[0])).length > 0) return;
+
         client.username = args[0];
         client.fullname = args[1];
 
         if(client.nick){
-            console.log(`${client.nick}!${client.username}@${client.address} authed.`);
+            log(`${client.nick}!${client.username}@${client.address} authed.`);
             client.tell(Reply.Welcome(client.server.hostname, client));
         }
     }

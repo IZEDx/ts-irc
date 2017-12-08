@@ -1,7 +1,7 @@
 
 import IRCServer from "./irc";
 
-export function main(argv : string[]){
+async function main(argv : string[]){
     if(argv.length < 3){
         console.log("Usage: npm start -- <port>");
         return;
@@ -10,9 +10,9 @@ export function main(argv : string[]){
     let port    = parseInt(argv[2]);
     let server  = new IRCServer(port);
 
+    console.log("Starting IRC Server.");
+
     server.listen();
 }
 
 main(process.argv); 
-
-export default IRCServer;

@@ -1,5 +1,5 @@
 import Transciever from "./transciever";
-import {Socket, Server} from "net";
+import {Socket} from "net";
 
 export default class Client<T> extends Transciever{
     public nick : string;

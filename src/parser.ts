@@ -84,10 +84,10 @@ export class StateParser implements IActorParser<SerializedState>{
     constructor(){
     }   
 
-    async tell(c : string) : Promise<SerializedState>{
+    async tell(c : string) : Promise<State>{
         this._step = {c : c, p : this._p++, prev : this._step};
         await this._state.tell(this._step);
-        return this._state.serialize();
+        return this._state;
     }
 
     async parse(msg : string) : Promise<SerializedState>{
@@ -145,13 +145,25 @@ export class OperatorParser implements IParser<SerializedState>{
 }
 
 
-export async function* parsePercentage(msg : string) : AsyncIterable<{state : SerializedState, p : number}>{
-    yield;
-
+export async function* parsePercentage(msg : string) : AsyncIterable<{state : State, p : number}>{
     let parser = new StateParser(), i = 0;
     for(let c of msg){
-        yield {state : await parser.tell(c), p : msg.length/100*i++};
+        yield {state : await parser.tell(c), p : 100/msg.length*++i};
     }
 
     return;
 }   
+
+
+export async function parseByCharacter(msg : string, silent = false) : Promise<SerializedState>{
+    if(!silent) console.log("Parsing: " + msg);
+    let state : State = <any>{};
+    for await(let r of parsePercentage(msg)){
+        if(!silent) console.log("..."+r.p+"%");
+        state = r.state;
+    }
+    if(!silent) console.log("Done. ", state);
+
+    if(!state.finished) throw("Invalid Message");
+    return state;
+}
