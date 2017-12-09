@@ -9,7 +9,9 @@ To install, build and run this, you'll need [Node.js](https://nodejs.org) and [N
 ### Setup
 
 > git clone https://github.com/IZEDx/ts-irc.git
+
 > cd ts-irc/
+
 > npm install
 
 This should now download the sourcefiles, install the dependencies and build the project.
