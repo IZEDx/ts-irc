@@ -4,14 +4,14 @@ import chalk from "chalk";
 
 const log = (...msg : string[]) => console.log(chalk.red.bold("[ts-irc]\t") + chalk.gray(...msg));
 
-async function main(argv : string[]){
-    if(argv.length < 3){
+async function main(argv : string[]) {
+    if (argv.length < 3) {
         log("Usage: npm start -- <port>");
         return;
     }
 
-    let port    = parseInt(argv[2]);
-    let server  = new IRCServer(port);
+    const port    = parseInt(argv[2]);
+    const server  = new IRCServer(port);
 
     log("Starting IRC Server.");
 
@@ -20,4 +20,4 @@ async function main(argv : string[]){
     log("Shutdown");
 }
 
-main(process.argv); 
+main(process.argv);

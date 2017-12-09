@@ -1,33 +1,34 @@
 
-
 import {createServer, Socket, Server} from "net";
 import IRCClient from "./client";
-import CommandHandler, {Command, OperatorParser} from "./commandhandler";
+import CommandHandler, {OperatorParser} from "./commandhandler";
 import {log as _log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
-import "./commands";
+import {BasicCommands} from "./commands";
 import chalk from "chalk";
+
+new BasicCommands();
 
 const log = (...msg : string[]) => _log(chalk.blue.bold("[Server]\t") + chalk.gray(...msg));
 
 /**
  * IRC Server
  */
-export default class IRCServer implements IIRCServer{
+export default class IRCServer implements IIRCServer {
     private resolve : () => void = nop;
 
-    readonly port : number;
-    readonly server : Server;
-    readonly commandHandler : CommandHandler;
-    readonly clients : IRCClient[] = [];
-    readonly hostname : string;
+    public readonly port : number;
+    public readonly server : Server;
+    public readonly commandHandler : CommandHandler;
+    public readonly clients : IRCClient[] = [];
+    public readonly hostname : string;
 
     /**
      * Creates a new IRC Server instance
      * @param {number} port Port to run the server on
      * @param {string|void} hostname Hostname to run the server on
      */
-    constructor(port : number, hostname = "localhost"){
+    constructor(port : number, hostname : string = "localhost") {
         this.port = port;
         this.hostname = hostname;
         this.server = createServer();
@@ -41,8 +42,8 @@ export default class IRCServer implements IIRCServer{
      * @param {Socket} socket Socket to the client
      * @returns {Promise<void>} Promise that resolves when the client is disconnected
      */
-    async onConnection(socket : Socket){
-        let client = new IRCClient(socket, this);
+    public async onConnection(socket : Socket) {
+        const client = new IRCClient(socket, this);
 
         this.clients.push(client);
         log(`New client connected from ${client.address}.`);
@@ -55,9 +56,9 @@ export default class IRCServer implements IIRCServer{
 
     /**
      * Starts the server
-     * @returns {Promise<void>} Promise that resolves when it's done
+     * @returns {Promise<void>} Promise that resolves when it"s done
      */
-    async listen(){
+    public async listen() {
         this.server.listen(this.port);
         return new Promise<void>((resolve, reject) => this.resolve = resolve);
     }
@@ -68,8 +69,8 @@ export default class IRCServer implements IIRCServer{
      * @param {IRCClient[T]} equals Value to match
      * @return {Promise<IRCClient[]} Promise that resolves to the list of clients
      */
-    async getClients<T extends keyof IRCClient>(where : T, equals : IRCClient[T]) : Promise<IRCClient[]>{
-        return this.clients.filter(c => c.authed).filter(c => c[where] == equals);
+    public async getClients<T extends keyof IRCClient>(where : T, equals : IRCClient[T]) : Promise<IRCClient[]> {
+        return this.clients.filter(c => c.authed).filter(c => c[where] === equals);
     }
 
     /**
@@ -77,15 +78,14 @@ export default class IRCServer implements IIRCServer{
      * @param {string} msg Message to broadcast
      * @param {IRCClient[]|void} clients Optional list of clients to broadcast to
      */
-    async broadcast(msg : string, clients? : IRCClient[]){
-        if(!clients) clients = this.clients.filter(c => c.authed);
-        let promises : Promise<void>[] = [];
-        
-        for(let c of clients){
+    public async broadcast(msg : string, clients? : IRCClient[]) {
+        if (!clients) { clients = this.clients.filter(c => c.authed); }
+        const promises : Promise<void>[] = [];
+
+        for (const c of clients) {
             promises.push(c.tell(msg));
         }
 
         await Promise.all(promises);
     }
 }
-
