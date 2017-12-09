@@ -14,7 +14,7 @@ $ git clone https://github.com/IZEDx/ts-irc.git
 $ cd ts-irc/
 $ npm install
 
-´´´
+```
 
 This should now download the sourcefiles, install the dependencies and build the project.
 
@@ -24,7 +24,7 @@ bash```
 
 $ npm run build
 
-´´´
+```
 
 Once built, you can run this project from the project root by using
 
@@ -32,7 +32,7 @@ bash```
 
 $ npm run start -- "port"
 
-´´´
+```
 
 *Where "port" insert the port, which the server should listen on.*
 
@@ -46,7 +46,7 @@ bash```
 
 $ npm install
 
-´´´
+```
 
 Builds the whole project:
 
@@ -54,7 +54,7 @@ bash```
 
 $ npm run build
 
-´´´
+```
 
 Starts the project:
 
@@ -62,7 +62,7 @@ bash```
 
 $ npm start
 
-´´´
+```
 
 Starts a watcher to compile, once a file changes:
 
@@ -70,7 +70,7 @@ bash```
 
 $ npm run watch
 
-´´´
+```
 
 Runs TSLint to statically analyze the code:
 
@@ -78,7 +78,7 @@ bash```
 
 $ npm run lint-check
 
-´´´
+```
 
 Runs TSLint to statically analyze the code and fix the issues immediately:
 
@@ -86,4 +86,4 @@ bash```
 
 $ npm run lint-fix
 
-´´´
+```
