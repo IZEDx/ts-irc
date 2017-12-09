@@ -8,21 +8,31 @@ To install, build and run this, you'll need [Node.js](https://nodejs.org) and [N
 
 ### Setup
 
-```
+bash```
+
 $ git clone https://github.com/IZEDx/ts-irc.git
 $ cd ts-irc/
 $ npm install
-```
- 
+
+´´´
+
 This should now download the sourcefiles, install the dependencies and build the project.
 
 Sometimes the building of the project right after "npm install" may fail, in this case please build manually:
 
-> $ npm run build
+bash```
+
+$ npm run build
+
+´´´
 
 Once built, you can run this project from the project root by using
 
-> $ npm run start -- "port"
+bash```
+
+$ npm run start -- "port"
+
+´´´
 
 *Where "port" insert the port, which the server should listen on.*
 
@@ -32,24 +42,48 @@ Here is a list of available npm scripts that should work right out of the box an
 
 Installs all dependencies:
 
-> $ npm install
+bash```
+
+$ npm install
+
+´´´
 
 Builds the whole project:
 
-> $ npm run build
+bash```
+
+$ npm run build
+
+´´´
 
 Starts the project:
 
-> $ npm start
+bash```
+
+$ npm start
+
+´´´
 
 Starts a watcher to compile, once a file changes:
 
-> $ npm run watch
+bash```
+
+$ npm run watch
+
+´´´
 
 Runs TSLint to statically analyze the code:
 
-> $ npm run lint-check
+bash```
+
+$ npm run lint-check
+
+´´´
 
 Runs TSLint to statically analyze the code and fix the issues immediately:
 
-> $ npm run lint-fix
+bash```
+
+$ npm run lint-fix
+
+´´´
