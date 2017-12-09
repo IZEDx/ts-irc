@@ -1,12 +1,15 @@
 import Transciever from "./transciever";
 import {Socket} from "net";
+import {IIRCServer, IIRCClient} from "./interfaces";
+import ReplyGenerator from "./replies";
 
-export default class Client<T> extends Transciever{
+export default class IRCClient extends Transciever<Socket> implements IIRCClient{
     public nick : string;
     private _username : string;
     private _fullname : string;
     readonly address : string;
-    readonly server : T;
+    readonly server : IIRCServer;
+    readonly reply : ReplyGenerator;
 
     get username()  { return this._username;    }
     get fullname()  { return this._fullname;    }
@@ -21,10 +24,11 @@ export default class Client<T> extends Transciever{
         }
     }
 
-    constructor(socket : Socket, server : T){
+    constructor(socket : Socket, server : IIRCServer){
         super(socket);
         this.server = server;
         this.address = socket.remoteAddress || "unknown";
+        this.reply = new ReplyGenerator(this.server, this);
     }
 
     set username(name : string){

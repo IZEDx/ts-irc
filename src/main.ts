@@ -1,5 +1,5 @@
 
-import IRCServer from "./irc";
+import IRCServer from "./server";
 
 async function main(argv : string[]){
     if(argv.length < 3){

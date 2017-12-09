@@ -2,25 +2,7 @@
 (<any>Symbol)["asyncIterator"] = Symbol.asyncIterator || Symbol.for("asyncIterator");
 export interface AsyncIterable<T>{[Symbol.asyncIterator](): AsyncIterator<T>;}
 
-import {Socket} from "net";
-
-
-export interface IActor<T = string, K = string, P = void>{
-    tell(msg : T, sender? : IActor<K, any>) : Promise<P>;
-    shutdown?(sender : IActor<K, any>) : Promise<void>;
-}
-export function isActor(object : any) : object is IActor{
-    return 'tell' in object && 'shutdown' in object;
-}
-
-
-
-export interface IPipeable<K = void>{
-    pipe(target : IActor) : Promise<K|undefined>;
-}
-export function isPipeable(object : any) : object is IPipeable{
-    return 'run' in object;
-}
+import {IDataEvent, IPipeable} from "./interfaces";
 
 export async function* faucet(pipeable : IPipeable) : AsyncIterable<string>{
     let waiting  : ((data : string) => void)|null;
@@ -53,27 +35,15 @@ export async function* faucet(pipeable : IPipeable) : AsyncIterable<string>{
     }
 }
 
-
-// Subset of NodeJS.EventEmitter requiring the events "data", "end" and "error". Can be listened on until completion.
-export interface IDataEvent{
-    on(event : "data",  cb : (data : Buffer)        => void) : void;
-    on(event : "close", cb : (had_error : Boolean)  => void) : void;
-    on(event : "error", cb : (error : Error)        => void) : void;
-}
-
-// types implementing IDataEvent and NodeJS.WriteStream
-// Can be listened on and written.
-export type NodeDataStream = IDataEvent&NodeJS.WriteStream;
-
 /**
  * Async Data Generator. Takes an input providing data and yields that.
- * @param {IDataEvent} stream
- * @returns {AsyncIterable<Buffer>}
+ * @param {IDataEvent<T>} stream
+ * @returns {AsyncIterable<T>}
  */
-export async function* dataEvent(stream : IDataEvent) : AsyncIterable<Buffer> {
-    let waitingResolve  : null | ((data : Buffer) => void);
+export async function* dataEvent<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
+    let waitingResolve  : null | ((data : T) => void);
     let waitingReject   : (err : Error) => void;
-    let buffered : Buffer[]                     = [];
+    let buffered : T[]                     = [];
     let ended                                   = false;
 
     stream.on("error", err => waitingReject && waitingReject(err) );
@@ -90,7 +60,7 @@ export async function* dataEvent(stream : IDataEvent) : AsyncIterable<Buffer> {
     let error : Error;
     while(true){
         try{
-            yield await new Promise<Buffer>( (resolve, reject) => {
+            yield await new Promise<T>( (resolve, reject) => {
                 waitingReject = reject;
                 if(buffered.length == 0) return waitingResolve = resolve;
 
@@ -108,11 +78,5 @@ export async function* dataEvent(stream : IDataEvent) : AsyncIterable<Buffer> {
     }
 }
 
-
-export interface IParser<T>{
-    parse(msg : string) : Promise<T>;
-}
-
-export type IActorParser<T> = IParser<T> & IActor<string, void, T>;
 
 export const log = console.log;

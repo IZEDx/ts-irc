@@ -1,6 +1,6 @@
 
-import {IActor, IParser} from "./utils";
-import {SerializedState} from "./parser";
+import {IActor, IParser, ICommandHandler} from "./interfaces";
+import IRCClient from "./client";
 
 type CommandFunction = (sender : IActor, prefix : string, args : string[]) => Promise<string|undefined>;
 
@@ -11,29 +11,26 @@ export function Command(target : Function, propertyKey: string, descriptor: Prop
 
 export {OperatorParser, StateParser} from "./parser";
 
-export default class CommandHandler implements IActor{
-    readonly parser : IParser<SerializedState>;
+export default class CommandHandler implements ICommandHandler{
+    readonly parser : IParser;
 
-    constructor(parser : IParser<SerializedState>){
+    constructor(parser : IParser){
         this.parser = parser;
     }
 
-    async tell(msg : string, target : IActor){
+    async tell(msg : string, client : IRCClient){
         
         let {prefix, command, args} = await this.parser.parse(msg); // this.parseByCharacter(msg, true);
 
-        console.log(prefix, command, args);
-
         let fn = commands.get(command);
         if(fn != undefined){
-            let result = await fn(target, prefix, args);
-            if(result) target.tell(result);
+            let result = await fn(client, prefix, args);
+            if(result) client.tell(result);
         }else{
-            target.tell("Command not found: " + msg);
+            client.tell(client.reply.ErrUnknownCommand(command));
         }
     }
 
     async shutdown(sender : IActor){
-
     }
 }

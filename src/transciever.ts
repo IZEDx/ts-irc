@@ -1,9 +1,15 @@
-import {IPipeable, IActor, dataEvent, NodeDataStream} from "./utils";
+import {dataEvent} from "./utils";
+import {IPipeable, IActor, IReadWriteStream} from "./interfaces";
 
-export default class Transciever implements IPipeable,IActor{
-    protected socket : NodeDataStream;
 
-    constructor(socket : NodeDataStream){
+interface Transciever<T extends IReadWriteStream>{
+    tell(msg : string) : Promise<void>;
+}
+class Transciever<T extends IReadWriteStream> implements IPipeable,IActor{
+    protected _shutdown = false;
+    protected socket : T;
+
+    constructor(socket : T){
         this.socket = socket;
     }
 
@@ -12,11 +18,15 @@ export default class Transciever implements IPipeable,IActor{
     }
 
     async shutdown(){
+        this._shutdown = true;
     }
 
     async pipe(target : IActor, then? : IActor){
         for await (let data of dataEvent(this.socket)){
             target.tell(data.toString(), then || this);
+            if(this._shutdown) return;
         }
     }
 }
+
+export default Transciever;

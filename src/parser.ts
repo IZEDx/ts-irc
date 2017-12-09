@@ -1,8 +1,8 @@
-import {IActor, IParser, IActorParser, AsyncIterable} from "./utils";
+import {IActor, IParser, IActorParser, IParseResult} from "./interfaces";
+import {AsyncIterable} from "./utils";
 
 export type Step = {p : number, c : string, prev : Step};
 export type StepFunction = (step : Step) => StepFunction;
-export type SerializedState = {prefix : string, command : string, args : string[]};
 
 export class State implements IActor<Step>{
     private _next : StepFunction;
@@ -17,7 +17,7 @@ export class State implements IActor<Step>{
         this._next = this._next.bind(this)(step);
     }
 
-    serialize() : SerializedState{
+    serialize() : IParseResult{
         return {
             prefix : this.prefix,
             command : this.command,
@@ -75,7 +75,7 @@ export class State implements IActor<Step>{
     }
 }
 
-export class StateParser implements IActorParser<SerializedState>{
+export class StateParser implements IActorParser<State>{
     private _target : IActor;
     private _state : State = new State("", "", []);
     private _p = 0;
@@ -90,7 +90,7 @@ export class StateParser implements IActorParser<SerializedState>{
         return this._state;
     }
 
-    async parse(msg : string) : Promise<SerializedState>{
+    async parse(msg : string) : Promise<IParseResult>{
         console.log(`"${msg}"`);
         for(let c of msg) await this.tell(c);
         if(!this._state.finished) throw("Invalid Message");
@@ -102,11 +102,11 @@ export class StateParser implements IActorParser<SerializedState>{
 }
 
 
-export class OperatorParser implements IParser<SerializedState>{
+export class OperatorParser implements IParser{
     constructor(){
     }   
 
-    async parse(msg : string) : Promise<SerializedState>{
+    async parse(msg : string) : Promise<IParseResult>{
         let prefix  = "";
         let command = "";
         let parts : string[] = [];
@@ -155,7 +155,7 @@ export async function* parsePercentage(msg : string) : AsyncIterable<{state : St
 }   
 
 
-export async function parseByCharacter(msg : string, silent = false) : Promise<SerializedState>{
+export async function parseByCharacter(msg : string, silent = false) : Promise<IParseResult>{
     if(!silent) console.log("Parsing: " + msg);
     let state : State = <any>{};
     for await(let r of parsePercentage(msg)){
