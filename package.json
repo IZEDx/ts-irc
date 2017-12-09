@@ -7,7 +7,9 @@
     "build": "./node_modules/typescript/bin/tsc",
     "watch": "npm run build -- --watch",
     "start": "node dist/main.js",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "lint-check": "tslint --project . -t codeFrame",
+    "lint-fix": "tslint --project . --fix -t stylish"
   },
   "repository": {
     "type": "git",
@@ -22,9 +24,13 @@
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/node": "^8.0.53",
+    "tslint": "^5.8.0",
+    "tslint-clean-code": "^0.2.0",
+    "tslint-language-service": "^0.9.7",
+    "tslint-microsoft-contrib": "^5.0.1",
     "typescript": "^2.6.2"
   },
-  "dependencies": { 
+  "dependencies": {
     "chalk": "^2.3.0"
   }
 }

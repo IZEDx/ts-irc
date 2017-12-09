@@ -1,0 +1,13 @@
+{
+    "extends": "tslint-clean-code",
+    "rules": {
+        "no-unused-variable": false,
+        "no-console": false,
+        "no-default-export": false,
+        "quotemark": [true, "double"],
+        "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
+        "no-empty": false,
+        "import-name": false,
+        "export-name": false
+    }
+}

@@ -10,10 +10,19 @@
         "removeComments": true,
         "strictNullChecks": true,
         "noImplicitAny": true,
+        "noUnusedLocals": true,
         "suppressImplicitAnyIndexErrors": true,
         "lib": [
             "es2017",
             "esnext.asynciterable"
+        ],
+        "plugins": [
+            { 
+                "name": "tslint-language-service",
+                "alwaysShowRuleFailuresAsWarnings": true,
+                "disableNoUnusedVariableRule": true,
+                "supressWhileTypeErrorsPresent": true
+            }
         ],
         "outDir": "dist"
     },
