@@ -7,6 +7,9 @@ import {log} from "./utils";
 import {IIRCServer} from "./interfaces";
 import "commands.ts";
 
+/**
+ * IRC Server
+ */
 export default class IRCServer implements IIRCServer{
     readonly port : number;
     readonly server : Server;
@@ -14,6 +17,11 @@ export default class IRCServer implements IIRCServer{
     readonly clients : IRCClient[] = [];
     readonly hostname : string;
 
+    /**
+     * Creates a new IRC Server instance
+     * @param {number} port Port to run the server on
+     * @param {string|void} hostname Hostname to run the server on
+     */
     constructor(port : number, hostname = "localhost"){
         this.port = port;
         this.hostname = hostname;
@@ -22,6 +30,11 @@ export default class IRCServer implements IIRCServer{
         this.commandHandler = new CommandHandler(new OperatorParser());
     }
 
+    /**
+     * Called on every client connection to this server.
+     * @param {Socket} socket Socket to the client
+     * @returns {Promise<void>} Promise that resolves when the client is disconnected
+     */
     async onConnection(socket : Socket){
         let client = new IRCClient(socket, this);
 
@@ -34,14 +47,29 @@ export default class IRCServer implements IIRCServer{
         this.clients.splice(this.clients.indexOf(client), 1);
     }
 
+    /**
+     * Starts the server
+     * @returns {Promise<void>} Promise that resolves when it's done
+     */
     async listen(){
         await this.server.listen(this.port);
     }
 
+    /**
+     * Gets all registered clients that match the give value
+     * @param {T} where What key to match
+     * @param {IRCClient[T]} equals Value to match
+     * @return {Promise<IRCClient[]} Promise that resolves to the list of clients
+     */
     async getClients<T extends keyof IRCClient>(where : T, equals : IRCClient[T]) : Promise<IRCClient[]>{
         return this.clients.filter(c => c.authed).filter(c => c[where] == equals);
     }
 
+    /**
+     * Broadcasts a message to all clients that are registered or a given list of clients.
+     * @param {string} msg Message to broadcast
+     * @param {IRCClient[]|void} clients Optional list of clients to broadcast to
+     */
     async broadcast(msg : string, clients? : IRCClient[]){
         if(!clients) clients = this.clients.filter(c => c.authed);
         let promises : Promise<void>[] = [];
