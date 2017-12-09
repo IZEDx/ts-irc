@@ -3,14 +3,19 @@
 import {createServer, Socket, Server} from "net";
 import IRCClient from "./client";
 import CommandHandler, {Command, OperatorParser} from "./commandhandler";
-import {log} from "./utils";
+import {log as _log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
-import "commands.ts";
+import "./commands";
+import chalk from "chalk";
+
+const log = (...msg : string[]) => _log(chalk.blue.bold("[Server]\t") + chalk.gray(...msg));
 
 /**
  * IRC Server
  */
 export default class IRCServer implements IIRCServer{
+    private resolve : () => void = nop;
+
     readonly port : number;
     readonly server : Server;
     readonly commandHandler : CommandHandler;
@@ -27,6 +32,7 @@ export default class IRCServer implements IIRCServer{
         this.hostname = hostname;
         this.server = createServer();
         this.server.on("connection", async socket => await this.onConnection(socket));
+        this.server.on("close", () => this.resolve());
         this.commandHandler = new CommandHandler(new OperatorParser());
     }
 
@@ -52,7 +58,8 @@ export default class IRCServer implements IIRCServer{
      * @returns {Promise<void>} Promise that resolves when it's done
      */
     async listen(){
-        await this.server.listen(this.port);
+        this.server.listen(this.port);
+        return new Promise<void>((resolve, reject) => this.resolve = resolve);
     }
 
     /**

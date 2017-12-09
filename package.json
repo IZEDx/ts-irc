@@ -20,8 +20,11 @@
   },
   "homepage": "https://github.com/IZEDx/ts-irc#readme",
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
     "@types/node": "^8.0.53",
     "typescript": "^2.6.2"
   },
-  "dependencies": {}
+  "dependencies": { 
+    "chalk": "^2.3.0"
+  }
 }

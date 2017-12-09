@@ -1,7 +1,10 @@
 
 import IRCClient from "./client";
 import {Command} from "./commandhandler";
-import {log} from "./utils";
+import {log as _log} from "./utils";
+import chalk from "chalk";
+
+const log = (...msg : string[]) => _log(chalk.green.bold("[Interaction]\t") + chalk.gray(...msg));
 
 class BasicCommands{
     @Command
@@ -18,11 +21,11 @@ class BasicCommands{
         if(client.authed && oldnick){
             log(`${client.identifier} changed nick from "${oldnick}" to "${client.nick}".`);
         }else{
-            log(`${client.address} set their nick to ${client.nick}`);
+            log(`${client.address} set their nick to ${client.nick}.`);
         }
 
         if(client.authed){
-            log(`${client.identifier} identified themself`);
+            log(`${client.identifier} identified themself.`);
             client.tell(client.reply.Welcome());
         }
     }
@@ -37,14 +40,14 @@ class BasicCommands{
         client.fullname = args[1];
 
         if(client.authed){
-            log(`${client.identifier} identified themself`);
+            log(`${client.identifier} identified themself.`);
             client.tell(client.reply.Welcome());
         }
     }
 
     @Command
     static async QUIT(client : IRCClient, prefix : string, args : string[]){
-        log(`${client.identifier} attempts to disconnect with reason: ${args[0] || "Not given"}`);
+        log(`${client.identifier} disconnected with reason: ${args[0] || "Not given"}.`);
         client.disconnect();
     }
 }

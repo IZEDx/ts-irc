@@ -80,3 +80,5 @@ export async function* dataEvent<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
 
 
 export const log = console.log;
+
+export const nop = () => {};
