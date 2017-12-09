@@ -2,14 +2,12 @@
 import {createServer, Socket, Server} from "net";
 import IRCClient from "./client";
 import CommandHandler, {OperatorParser} from "./commandhandler";
-import {log as _log, nop} from "./utils";
+import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
 import {BasicCommands} from "./commands";
-import chalk from "chalk";
 
 new BasicCommands();
 
-const log = (...msg : string[]) => _log(chalk.blue.bold("[Server]\t") + chalk.gray(...msg));
 
 /**
  * IRC Server
@@ -46,11 +44,11 @@ export default class IRCServer implements IIRCServer {
         const client = new IRCClient(socket, this);
 
         this.clients.push(client);
-        log(`New client connected from ${client.address}.`);
+        log.server(`New client connected from ${client.address}.`);
 
         await client.pipe(this.commandHandler, client);
 
-        log(`${client.identifier} disconnected.`);
+        log.server(`${client.identifier} disconnected.`);
         this.clients.splice(this.clients.indexOf(client), 1);
     }
 

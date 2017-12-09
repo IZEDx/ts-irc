@@ -1,9 +1,8 @@
 
 import {IActor, IParser, ICommandHandler, ICommandFunction} from "./interfaces";
 import IRCClient from "./client";
+import {log} from "./utils";
 export {OperatorParser, StateParser} from "./parser";
-import {log as _log} from "./utils";
-import chalk from "chalk";
 
 const commands : Map<string, Map<string, ICommandFunction>> = new Map();
 
@@ -55,6 +54,8 @@ export default class CommandHandler implements ICommandHandler {
             fn = lib.commands.get(command);
             if (fn !== undefined) result = await fn(client, prefix, args);
         }
+
+        log.interaction(`${client.identifier} attempts to run ${command} ${args}.`);
 
         if (result !== undefined) {
             client.tell(result);

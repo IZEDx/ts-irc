@@ -90,7 +90,6 @@ export class StateParser implements IActorParser<State> {
     }
 
     public async parse(msg : string) : Promise<IParseResult> {
-        console.log(`"${msg}"`);
         for (const c of msg) { await this.tell(c); }
         if (!this._state.finished) { throw new Error("Invalid Message"); }
         return this._state.serialize();

@@ -3,6 +3,7 @@
 export interface AsyncIterable<T> {[Symbol.asyncIterator](): AsyncIterator<T>; }
 
 import {IDataEvent, IPipeable} from "./interfaces";
+import chalk from "chalk";
 
 export async function* faucet(pipeable : IPipeable) : AsyncIterable<string> {
     let waiting  : ((data : string) => void) | null;
@@ -78,6 +79,10 @@ export async function* dataEvent<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
     }
 }
 
-export const log = console.log;
-
 export const nop = () => {};
+
+export namespace log{
+    export const main = (...msg : string[]) => console.log(chalk.red.bold("[ts-irc]\t") + chalk.gray(...msg));
+    export const server = (...msg : string[]) => console.log(chalk.blue.bold("[Server]\t") + chalk.gray(...msg));
+    export const interaction = (...msg : string[]) => console.log(chalk.green.bold("[Interaction]\t") + chalk.gray(...msg));
+}
