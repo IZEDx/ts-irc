@@ -1,9 +1,9 @@
 import {dataEvent} from "./utils";
 import {IPipeable, IActor, IReadWriteStream} from "./interfaces";
 
-interface Transciever<T extends IReadWriteStream> {
-    tell(msg : string) : Promise<void>;
-}
+/**
+ * Enables sending and receiving of ReadWriteStreams like Sockets
+ */
 class Transciever<T extends IReadWriteStream> implements IPipeable, IActor {
     protected _shutdown : boolean = false;
     protected socket : T;

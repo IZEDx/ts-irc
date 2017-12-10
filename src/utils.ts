@@ -1,5 +1,5 @@
 // Async Hacks
-(Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol.for("asyncIterator");
+(<any>Symbol).asyncIterator = Symbol.asyncIterator || Symbol.for("asyncIterator");
 export interface AsyncIterable<T> {[Symbol.asyncIterator](): AsyncIterator<T>; }
 
 import {IDataEvent, IPipeable} from "./interfaces";
@@ -58,8 +58,8 @@ export async function* dataEvent<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
         waitingResolve = null;
     });
 
-    let error : Error;
-    while (true) {
+    let error : Error|undefined;
+    while (error === undefined) {
         try {
             yield await new Promise<T>((resolve, reject) => {
                 waitingReject = reject;
@@ -70,7 +70,6 @@ export async function* dataEvent<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
             });
         } catch (err) {
             error = err;
-            break;
         }
     }
 
@@ -79,10 +78,18 @@ export async function* dataEvent<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
     }
 }
 
-export const nop = () => {};
+export const nop = (...args : any[]) => {};
 
-export namespace log{
-    export const main = (...msg : string[]) => console.log(chalk.red.bold("[ts-irc]\t") + chalk.gray(...msg));
-    export const server = (...msg : string[]) => console.log(chalk.blue.bold("[Server]\t") + chalk.gray(...msg));
-    export const interaction = (...msg : string[]) => console.log(chalk.green.bold("[Interaction]\t") + chalk.gray(...msg));
+export namespace now {
+    export const local = () => new Date().toLocaleString();
+}
+
+export namespace log {
+    function logPrefix(prefix : string, ...msg : string[]) {
+        console.log(prefix + "\t" + chalk.gray(now.local()) + "\t", ...msg);
+    }
+
+    export const main           = (...msg : string[]) => logPrefix(chalk.red.bold("[ts-irc]"), ...msg);
+    export const server         = (...msg : string[]) => logPrefix(chalk.blue.bold("[Server]"), ...msg);
+    export const interaction    = (...msg : string[]) => logPrefix(chalk.green.bold("[Interaction]"), ...msg);
 }

@@ -8,6 +8,12 @@
         "variable-name": [true, "ban-keywords", "check-format", "allow-leading-underscore"],
         "no-empty": false,
         "import-name": false,
-        "export-name": false
+        "export-name": false,
+        "no-missing-visibility-modifiers": false,
+        "try-catch-first": false,
+        "promise-must-complete" : false,
+        "id-length": false,
+        "missing-jsdoc": false,
+        "no-feature-envy": false
     }
 }

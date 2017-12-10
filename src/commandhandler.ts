@@ -2,15 +2,9 @@
 import {IActor, IParser, ICommandHandler, ICommandFunction} from "./interfaces";
 import IRCClient from "./client";
 import {log} from "./utils";
-export {OperatorParser, StateParser} from "./parser";
+export {OperatorParser} from "./parser";
 
 const commands : Map<string, Map<string, ICommandFunction>> = new Map();
-
-export class CommandLib{
-    get commands() : Map<string, ICommandFunction>{
-        return commands.get(this.constructor.name) || new Map();
-    }
-}
 
 /**
  * Decorator that registers a method as a command to be run. Will not be called with a proper this value.
@@ -19,17 +13,30 @@ export class CommandLib{
  * @param {PropertyDescriptor} descriptor Descriptor
  */
 export function registerCommand(target : Function, propertyKey: string, descriptor: PropertyDescriptor) {
-    let lib = target.name.toLowerCase()
-    if(!commands.has(lib)) commands.set(lib, new Map());
-    commands.set(propertyKey.toLowerCase(), target[propertyKey]);
+    getOrDefault(commands, target.name.toLowerCase(), new Map()).set(propertyKey.toLowerCase(), target[propertyKey]);
+}
+
+function getOrDefault<K, V>(map : Map<K, V>, key : K, def : V) : V {
+    const v = map.get(key);
+    if (v === undefined) {
+        map.set(key, def);
+        return def;
+    }
+    return v;
+}
+
+export class CommandLib {
+    get commands() : Map<string, ICommandFunction> {
+        return getOrDefault(commands, this.constructor.name.toLowerCase(), new Map());
+    }
 }
 
 /**
  * Handles all the commands
  */
 export default class CommandHandler implements ICommandHandler {
-    readonly parser : IParser;
-    readonly libs : CommandLib[];
+    public readonly parser : IParser;
+    public readonly libs : CommandLib[];
 
     /**
      * Creates a new CommandHandler
@@ -48,19 +55,23 @@ export default class CommandHandler implements ICommandHandler {
     public async tell(msg : string, client : IRCClient) {
         let fn : ICommandFunction | undefined;
         let result : string | undefined;
-        const {prefix, command, args} = await this.parser.parse(msg); // this.parseByCharacter(msg, true);
-
-        for(let lib of this.libs){
-            fn = lib.commands.get(command);
-            if (fn !== undefined) result = await fn(client, prefix, args);
-        }
+        const {prefix, command, args} = await this.parser.tell(msg); // this.parseByCharacter(msg, tsrue);
 
         log.interaction(`${client.identifier} attempts to run ${command} ${args}.`);
+
+        for (const lib of this.libs) {
+            fn = lib.commands.get(command);
+            if (fn !== undefined) { break; }
+        }
+
+        if (fn !== undefined) {
+            result = await fn(client, prefix, args);
+        }
 
         if (result !== undefined) {
             client.tell(result);
         } else if (fn === undefined) {
-            client.tell(client.reply.ErrUnknownCommand(command));
+            client.tell(client.reply.errUnknownCommand(command));
         }
     }
 

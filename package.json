@@ -8,8 +8,8 @@
     "watch": "npm run build -- --watch",
     "start": "node dist/main.js",
     "postinstall": "npm run build",
-    "lint-check": "tslint --project . -t codeFrame",
-    "lint-fix": "tslint --project . --fix -t stylish"
+    "lint-check": "tslint --project . -t codeFrame --force",
+    "lint-fix": "tslint --project . --fix -t stylish --force"
   },
   "repository": {
     "type": "git",

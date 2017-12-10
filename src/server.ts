@@ -6,9 +6,6 @@ import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
 import {BasicCommands} from "./commands";
 
-new BasicCommands();
-
-
 /**
  * IRC Server
  */
@@ -32,11 +29,11 @@ export default class IRCServer implements IIRCServer {
         this.server = createServer();
         this.server.on("connection", async socket => await this.onConnection(socket));
         this.server.on("close", () => this.resolve());
-        this.commandHandler = new CommandHandler(new OperatorParser());
+        this.commandHandler = new CommandHandler(new OperatorParser(), new BasicCommands());
     }
 
     /**
-     * Called on every client connection to this server.
+     * Called on every client connection to this server.c
      * @param {Socket} socket Socket to the client
      * @returns {Promise<void>} Promise that resolves when the client is disconnected
      */
@@ -68,7 +65,7 @@ export default class IRCServer implements IIRCServer {
      * @return {Promise<IRCClient[]} Promise that resolves to the list of clients
      */
     public async getClients<T extends keyof IRCClient>(where : T, equals : IRCClient[T]) : Promise<IRCClient[]> {
-        return this.clients.filter(c => c.authed).filter(c => c[where] === equals);
+        return this.clients.filter(client => client.authed).filter(client => client[where] === equals);
     }
 
     /**
@@ -77,11 +74,14 @@ export default class IRCServer implements IIRCServer {
      * @param {IRCClient[]|void} clients Optional list of clients to broadcast to
      */
     public async broadcast(msg : string, clients? : IRCClient[]) {
-        if (!clients) { clients = this.clients.filter(c => c.authed); }
+        if (!clients) {
+            clients = this.clients.filter(client => client.authed);
+        }
+
         const promises : Promise<void>[] = [];
 
-        for (const c of clients) {
-            promises.push(c.tell(msg));
+        for (const client of clients) {
+            promises.push(client.tell(msg));
         }
 
         await Promise.all(promises);

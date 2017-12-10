@@ -19,9 +19,10 @@
         "plugins": [
             { 
                 "name": "tslint-language-service",
-                "alwaysShowRuleFailuresAsWarnings": true,
+                "alwaysShowRuleFailuresAsWarnings": false,
                 "disableNoUnusedVariableRule": true,
-                "supressWhileTypeErrorsPresent": true
+                "supressWhileTypeErrorsPresent": false,
+                "configFile": "./tslint.json"
             }
         ],
         "outDir": "dist"

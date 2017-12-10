@@ -12,7 +12,7 @@ export class BasicCommands extends CommandLib {
         if (args.length < 1) { return; }
 
         if ((await client.server.getClients("nick", args[0])).length > 0) {
-            client.tell(client.reply.ErrNicknameInUse(args[0]));
+            client.tell(client.reply.errNicknameInUse(args[0]));
             return;
         }
 
@@ -26,7 +26,7 @@ export class BasicCommands extends CommandLib {
 
         if (client.authed) {
             log.interaction(`${client.identifier} identified themself.`);
-            client.tell(client.reply.Welcome());
+            client.tell(client.reply.welcome());
         }
     }
 
@@ -41,7 +41,7 @@ export class BasicCommands extends CommandLib {
 
         if (client.authed) {
             log.interaction(`${client.identifier} identified themself.`);
-            client.tell(client.reply.Welcome());log.interaction
+            client.tell(client.reply.welcome());
         }
     }
 

@@ -26,15 +26,6 @@ export function isPipeable(object : any) : object is IPipeable {
     return "run" in object;
 }
 
-export interface IParser<T = IParseResult> {
-    parse(msg : string) : Promise<T>;
-}
-export function isParser(object : any) : object is IParser<any> {
-    return "parse" in object;
-}
-export type IActorParser<T> = IParser & IActor<string, string, T>;
-export interface IParseResult {prefix : string; command : string; args : string[]; }
-
 export interface ITransciever extends IPipeable, IActor {
     tell(msg : string) : Promise<void>;
     pipe(target : IActor, then? : IActor) : Promise<void>;
@@ -72,3 +63,6 @@ export type ICommandFunction = (sender : IActor, prefix : string, args : string[
 export interface ICommandLib {
     commands : Map<string, ICommandFunction>;
 }
+
+export type IParser<T = void> = IActor<string, T, IParseResult>;
+export interface IParseResult { prefix : string; command : string; args : string[]; }

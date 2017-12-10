@@ -1,4 +1,3 @@
 {
-    "typescript.tsdk": "./node_modules/typescript/lib",
-    "typescript.check.tscVersion": false
+    "typescript.tsdk": "./node_modules/typescript/lib"
 }
