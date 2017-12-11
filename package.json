@@ -7,12 +7,12 @@
     "ts-irc": "./index.js"
   },
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc",
+    "build": "./node_modules/.bin/tsc",
     "watch": "npm run build -- --watch",
     "start": "node dist/main.js",
     "postinstall": "npm run build",
-    "lint-check": "tslint --project . -t codeFrame --force",
-    "lint-fix": "tslint --project . --fix -t stylish --force"
+    "lint": "./node_modules/.bin/tslint --project . -t codeFrame --force",
+    "lint-fix": "npm run lint-check -- --force"
   },
   "repository": {
     "type": "git",
