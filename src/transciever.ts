@@ -1,14 +1,15 @@
-import {dataEvent} from "./utils";
-import {IPipeable, IActor, IReadWriteStream} from "./interfaces";
+import {listen} from "./utils";
+import {IPipeable, IActor} from "./interfaces";
+import {Socket} from "net";
 
 /**
  * Enables sending and receiving of ReadWriteStreams like Sockets
  */
-class Transciever<T extends IReadWriteStream> implements IPipeable, IActor {
+class Transciever implements IPipeable, IActor {
     protected _shutdown : boolean = false;
-    protected socket : T;
+    protected socket : Socket;
 
-    constructor(socket : T) {
+    constructor(socket : Socket) {
         this.socket = socket;
     }
 
@@ -18,12 +19,14 @@ class Transciever<T extends IReadWriteStream> implements IPipeable, IActor {
 
     public async shutdown() {
         this._shutdown = true;
+        this.socket.end();
+        this.socket.destroy();
     }
 
     public async pipe(target : IActor, then? : IActor) {
-        for await (const data of dataEvent(this.socket)) {
-            target.tell(data.toString(), then || this);
+        for await (const data of listen<Buffer>(this.socket)) {
             if (this._shutdown) { return; }
+            target.tell(data.toString(), then || this);
         }
     }
 }
