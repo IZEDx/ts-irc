@@ -11,7 +11,7 @@ To install, build and run this, you'll need [Node.js](https://nodejs.org) and [N
 ```
 $ git clone https://github.com/IZEDx/ts-irc.git
 $ cd ts-irc/
-ts-irc $ npm install
+ts-irc$ npm install
 ```
 
 This should now download the sourcefiles, install the dependencies and build the project.
@@ -19,13 +19,13 @@ This should now download the sourcefiles, install the dependencies and build the
 Sometimes the building of the project right after "npm install" may fail, in this case please build manually:
 
 ```
-ts-irc $ npm run build
+ts-irc$ npm run build
 ```
 
 Once built, you can globally link this project to run it from anywhere.
 
 ```
-ts-irc $ npm link
+ts-irc$ npm link
 ```
 
 From now on every compiled change will be runnable using
@@ -43,35 +43,35 @@ Here is a list of available npm scripts that should work right out of the box an
 Installs all dependencies:
 
 ```
-ts-irc $ npm install
+ts-irc$ npm install
 ```
 
 Builds the whole project:
 
 ```
-ts-irc $ npm run build
+ts-irc$ npm run build
 ```
 
 Starts the project:
 
 ```
-ts-irc $ npm start
+ts-irc$ npm start
 ```
 
 Starts a watcher to compile, once a file changes:
 
 ```
-ts-irc $ npm run watch
+ts-irc$ npm run watch
 ```
 
 Runs TSLint to statically analyze the code:
 
 ```
-$ npm run lint
+ts-irc$ npm run lint
 ```
 
 Runs TSLint to statically analyze the code and fix the issues immediately:
 
 ```
-$ npm run lint-fix
+ts-irc$ npm run lint-fix
 ```
