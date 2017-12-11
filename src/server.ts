@@ -6,6 +6,8 @@ import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
 import {BasicCommands} from "./commands";
 
+const pjson : {version : string} = (<any>require)("../package");
+
 /**
  * IRC Server
  */
@@ -19,7 +21,7 @@ export default class IRCServer implements IIRCServer {
     public readonly hostname : string;
     public readonly created : Date;
 
-    public readonly version : string = "0.1";
+    public readonly version : string = pjson.version;
 
     /**
      * Creates a new IRC Server instance
@@ -43,13 +45,14 @@ export default class IRCServer implements IIRCServer {
      */
     public async onConnection(socket : Socket) {
         const client = new IRCClient(socket, this);
-
         this.clients.push(client);
+
         log.server(`New client connected from ${client.address}.`);
 
         await client.pipe(this.commandHandler, client);
 
         log.server(`${client.identifier} disconnected.`);
+
         this.clients.splice(this.clients.indexOf(client), 1);
     }
 
