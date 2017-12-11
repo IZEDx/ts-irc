@@ -14,20 +14,23 @@ export class BasicCommands extends CommandLib {
             return;
         }
 
-        if ((await client.server.getClients("nick", args[0])).length > 0) {
-            client.tell(client.reply.errNicknameInUse(args[0]));
+        const oldnick = client.nick;
+        const newnick = args[0];
+
+        if ((await client.server.getClients("nick", newnick)).length > 0) {
+            client.tell(client.reply.errNicknameInUse(newnick));
             return;
         }
 
-        const oldnick = client.nick;
-        client.nick = args[0];
-        if (client.authed && oldnick) {
-            log.interaction(`${client.identifier} changed nick from "${oldnick}" to "${client.nick}".`);
+        if (client.authed) {
+            log.interaction(`${client.identifier} changed nick from "${oldnick}" to "${newnick}".`);
         } else {
-            log.interaction(`${client.address} set their nick to ${client.nick}.`);
+            log.interaction(`${client.address} set their nick to ${newnick}.`);
         }
 
-        if (client.authed) {
+        client.nick = newnick;
+
+        if (client.authed && oldnick === undefined) {
             log.interaction(`${client.identifier} identified themself.`);
             client.server.introduceToClient(client);
         }
