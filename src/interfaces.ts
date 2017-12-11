@@ -1,4 +1,4 @@
-import {Server} from "net";
+import {Server, Socket} from "net";
 
 export interface IDataEvent<T = Buffer> {
     on(event : "data",  cb : (data : T)             => void) : void;
@@ -34,27 +34,28 @@ export interface ITransciever extends IPipeable, IActor {
 export interface IIRCClient extends ITransciever {
     nick : string;
     address : string;
-    server : IIRCServer;
+    server : IIRCServer<IIRCClient>;
     reply : any;
+    identifier : string;
+    authed : boolean;
     username : string;
     fullname : string;
-    authed : boolean;
-    identifier : string;
     disconnect(): void;
 }
 
-export interface IIRCServer {
+export interface IIRCServer<T extends IIRCClient = IIRCClient> {
     port : number;
     server : Server;
     commandHandler : ICommandHandler;
-    clients : IIRCClient[];
+    clients : T[];
     hostname : string;
-    version : string;
     created : Date;
+    version : string;
+    onConnection(socket : Socket) : Promise<void>;
     listen() : Promise<void>;
-    getClients<T extends keyof IIRCClient>(where : T, equals : IIRCClient[T]) : Promise<IIRCClient[]>;
-    broadcast(msg : string, clients? : IIRCClient[]) : Promise<void>;
-    introduceToClient(client : IIRCClient) : Promise<void>;
+    getClients<K extends keyof T>(where : K, equals : T[K]) : Promise<T[]>;
+    broadcast(msg : string, clients? : T[]) : Promise<void>;
+    introduceToClient(client : T) : Promise<void>;
 }
 
 export interface ICommandHandler extends IActor {

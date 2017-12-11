@@ -38,9 +38,9 @@ export default class IRCClient extends Transciever<Socket> implements IIRCClient
     /**
      *
      * @param {Socket} socket Socket of this client
-     * @param {IIRCServer} server Server the client is on
+     * @param {IIRCServer<IRCClient>} server Server the client is on
      */
-    constructor(socket : Socket, server : IIRCServer) {
+    constructor(socket : Socket, server : IIRCServer<IRCClient>) {
         super(socket);
         this.server = server;
         this.address = socket.remoteAddress || "unknown";
