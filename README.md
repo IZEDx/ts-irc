@@ -6,12 +6,12 @@ IRC implementation in TypeScript
 
 To install, build and run this, you'll need [Node.js](https://nodejs.org) and [Node Package Manager](https://www.npmjs.com/) installed, up-to-date and you'll need them in your PATH environment variable.
 
-### Setup
+### Setup Source
 
 ```
 $ git clone https://github.com/IZEDx/ts-irc.git
 $ cd ts-irc/
-$ npm install
+ts-irc $ npm install
 ```
 
 This should now download the sourcefiles, install the dependencies and build the project.
@@ -19,13 +19,19 @@ This should now download the sourcefiles, install the dependencies and build the
 Sometimes the building of the project right after "npm install" may fail, in this case please build manually:
 
 ```
-$ npm run build
+ts-irc $ npm run build
 ```
 
-Once built, you can run this project from the project root by using
+Once built, you can globally link this project to run it from anywhere.
 
 ```
-$ npm run start -- "port"
+ts-irc $ npm link
+```
+
+From now on every compiled change will be runnable using
+
+```
+$ ts-irc "port"
 ```
 
 *Where "port" insert the port, which the server should listen on.*
@@ -37,31 +43,31 @@ Here is a list of available npm scripts that should work right out of the box an
 Installs all dependencies:
 
 ```
-$ npm install
+ts-irc $ npm install
 ```
 
 Builds the whole project:
 
 ```
-$ npm run build
+ts-irc $ npm run build
 ```
 
 Starts the project:
 
 ```
-$ npm start
+ts-irc $ npm start
 ```
 
 Starts a watcher to compile, once a file changes:
 
 ```
-$ npm run watch
+ts-irc $ npm run watch
 ```
 
 Runs TSLint to statically analyze the code:
 
 ```
-$ npm run lint-check
+$ npm run lint
 ```
 
 Runs TSLint to statically analyze the code and fix the issues immediately:
