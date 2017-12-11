@@ -61,7 +61,7 @@ export class BasicCommands extends CommandLib {
     @registerCommand
     public static async QUIT(client : IRCClient, prefix : string, args : string[]) {
         log.interaction(`${client.identifier} disconnected with reason: ${args[0] || "Not given"}.`);
-        client.disconnect();
+        client.shutdown();
     }
 
     @registerCommand

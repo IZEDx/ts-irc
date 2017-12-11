@@ -6,7 +6,7 @@ import ReplyGenerator from "./replies";
 /**
  * IRC Client
  */
-export default class IRCClient extends Transciever<Socket> implements IIRCClient {
+export default class IRCClient extends Transciever implements IIRCClient {
     public nick : string;
     private _username : string;
     private _fullname : string;
@@ -70,13 +70,5 @@ export default class IRCClient extends Transciever<Socket> implements IIRCClient
      */
     public async tell(msg : string) {
         super.tell(msg.trim() + "\r\n");
-    }
-
-    /**
-     * Disconnects the client
-     */
-    public disconnect() {
-        this.socket.end();
-        this.socket.destroy();
     }
 }

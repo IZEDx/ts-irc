@@ -23,7 +23,7 @@ export interface IPipeable<K = void> {
     pipe(target : IActor) : Promise<K | undefined>;
 }
 export function isPipeable(object : any) : object is IPipeable {
-    return "run" in object;
+    return "pipe" in object;
 }
 
 export interface ITransciever extends IPipeable, IActor {
@@ -40,7 +40,6 @@ export interface IIRCClient extends ITransciever {
     authed : boolean;
     username : string;
     fullname : string;
-    disconnect(): void;
 }
 
 export interface IIRCServer<T extends IIRCClient = IIRCClient> {
