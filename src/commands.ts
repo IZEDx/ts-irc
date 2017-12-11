@@ -74,7 +74,7 @@ export class BasicCommands extends CommandLib {
         const target : IRCClient = targets[0];
         const msg : string = args[1];
 
-        if (targets.length == 0) {
+        if (targets.length === 0) {
             client.tell(client.reply.errNoSuchNick(args[0]));
             return;
         }
