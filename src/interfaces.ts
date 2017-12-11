@@ -48,9 +48,12 @@ export interface IIRCServer {
     commandHandler : ICommandHandler;
     clients : IIRCClient[];
     hostname : string;
+    version : string;
+    created : Date;
     listen() : Promise<void>;
     getClients<T extends keyof IIRCClient>(where : T, equals : IIRCClient[T]) : Promise<IIRCClient[]>;
     broadcast(msg : string, clients? : IIRCClient[]) : Promise<void>;
+    introduceToClient(client : IIRCClient) : Promise<void>;
 }
 
 export interface ICommandHandler extends IActor {

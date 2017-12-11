@@ -17,6 +17,9 @@ export default class IRCServer implements IIRCServer {
     public readonly commandHandler : CommandHandler;
     public readonly clients : IRCClient[] = [];
     public readonly hostname : string;
+    public readonly created : Date;
+
+    public readonly version : string = "0.1";
 
     /**
      * Creates a new IRC Server instance
@@ -30,6 +33,7 @@ export default class IRCServer implements IIRCServer {
         this.server.on("connection", async socket => await this.onConnection(socket));
         this.server.on("close", () => this.resolve());
         this.commandHandler = new CommandHandler(new OperatorParser(), new BasicCommands());
+        this.created = new Date();
     }
 
     /**
@@ -85,5 +89,19 @@ export default class IRCServer implements IIRCServer {
         }
 
         await Promise.all(promises);
+    }
+
+    public async introduceToClient(client : IRCClient) {
+        await Promise.all([
+            client.tell(client.reply.welcome()),
+            client.tell(client.reply.yourHost(this.hostname, this.version)),
+            client.tell(client.reply.created(this.created.toLocaleDateString())),
+            client.tell(client.reply.myInfo( {
+                name: this.hostname,
+                version: this.version,
+                um: "ao",
+                cm: "mtov"
+            } ))
+        ]);
     }
 }

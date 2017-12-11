@@ -9,7 +9,10 @@ import {log} from "./utils";
 export class BasicCommands extends CommandLib {
     @registerCommand
     public static async NICK(client : IRCClient, prefix : string, args : string[]) {
-        if (args.length < 1) { return; }
+        if (args.length < 1) {
+            client.tell(client.reply.errNoNicknameGiven());
+            return;
+        }
 
         if ((await client.server.getClients("nick", args[0])).length > 0) {
             client.tell(client.reply.errNicknameInUse(args[0]));
@@ -26,22 +29,32 @@ export class BasicCommands extends CommandLib {
 
         if (client.authed) {
             log.interaction(`${client.identifier} identified themself.`);
-            client.tell(client.reply.welcome());
+            client.server.introduceToClient(client);
         }
     }
 
     @registerCommand
     public static async USER(client : IRCClient, prefix : string, args : string[]) {
-        if (args.length < 2) { return; }
+        if (args.length < 2) {
+            client.tell(client.reply.errNeedMoreParams("user"));
+            return;
+        }
 
-        if ((await client.server.getClients("username", args[0])).length > 0) { return; }
+        if (client.authed) {
+            client.tell(client.reply.errAlreadyRegistred());
+            return;
+        }
+
+        if ((await client.server.getClients("username", args[0])).length > 0) {
+            return;
+        }
 
         client.username = args[0];
         client.fullname = args[1];
 
         if (client.authed) {
             log.interaction(`${client.identifier} identified themself.`);
-            client.tell(client.reply.welcome());
+            client.server.introduceToClient(client);
         }
     }
 
@@ -49,5 +62,20 @@ export class BasicCommands extends CommandLib {
     public static async QUIT(client : IRCClient, prefix : string, args : string[]) {
         log.interaction(`${client.identifier} disconnected with reason: ${args[0] || "Not given"}.`);
         client.disconnect();
+    }
+
+    @registerCommand
+    public static async PRIVMSG(client : IRCClient, prefix : string, args : string[]) {
+        if (args.length < 2) {
+            return;
+        }
+        const target : IRCClient|undefined = await client.server.getClients("nick", args[0])[0];
+
+        if (target === undefined) {
+            client.tell(client.reply.errNoSuchNick(args[0]));
+            return;
+        }
+
+        // TODO: SEND PM
     }
 }
