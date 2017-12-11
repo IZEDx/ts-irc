@@ -69,13 +69,17 @@ export class BasicCommands extends CommandLib {
         if (args.length < 2) {
             return;
         }
-        const target : IRCClient|undefined = await client.server.getClients("nick", args[0])[0];
 
-        if (target === undefined) {
+        const targets : IRCClient[] = <any[]> await client.server.getClients("nick", args[0]);
+        const target : IRCClient = targets[0];
+        const msg : string = args[1];
+
+        if (targets.length == 0) {
             client.tell(client.reply.errNoSuchNick(args[0]));
             return;
         }
 
-        // TODO: SEND PM
+        log.interaction(`${client.nick} > ${target.nick}\t${msg}`);
+        targets[0].tell(`:${client.identifier} PRIVMSG ${target.nick} :${msg}`);
     }
 }

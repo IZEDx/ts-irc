@@ -35,6 +35,7 @@ export interface IIRCClient extends ITransciever {
     nick : string;
     address : string;
     server : IIRCServer;
+    reply : any;
     username : string;
     fullname : string;
     authed : boolean;
