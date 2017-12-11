@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "IRC implementation in TypeScript",
   "main": "dist/main.js",
+  "bin": {
+    "ts-irc": "./index.js"
+  },
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
     "watch": "npm run build -- --watch",
