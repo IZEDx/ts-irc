@@ -41,7 +41,7 @@ export async function* faucet(pipeable : IPipeable) : AsyncIterable<string> {
  * @param {IDataEvent<T>} stream
  * @returns {AsyncIterable<T>}
  */
-export async function* dataEvent<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
+export async function* listen<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
     let waitingResolve  : null | ((data : T) => void);
     let waitingReject   : (err : Error) => void;
     const buffered : T[]                     = [];
