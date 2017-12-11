@@ -1,6 +1,7 @@
 
 import IRCServer from "./server";
 import {log} from "./utils";
+import {hostname} from "os";
 
 /**
  * Main function
@@ -13,7 +14,7 @@ async function main(argv : string[]) {
     }
 
     const port    = parseInt(argv[2]);
-    const server  = new IRCServer(port);
+    const server  = new IRCServer(port, hostname());
 
     // Printing empty lines to clear the screen
     const lines = (<any>process.stdout).getWindowSize()[1];
