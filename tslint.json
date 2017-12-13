@@ -14,6 +14,7 @@
         "promise-must-complete" : false,
         "id-length": false,
         "missing-jsdoc": false,
-        "no-feature-envy": false
+        "no-feature-envy": false,
+        "no-suspicious-comment": false
     }
 }
