@@ -70,7 +70,7 @@ export class BasicCommands extends CommandLib {
 
     @registerCommand
     public static async PRIVMSG(client : IRCClient, cmd : IParseResult) {
-        if (cmd.args.length < 2) {
+        if (cmd.args.length < 2 || !client.authed) {
             return;
         }
 
