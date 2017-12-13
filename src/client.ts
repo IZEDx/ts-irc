@@ -10,7 +10,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
     public nick : string;
     private _username : string;
     private _fullname : string;
-    public readonly address : string;
+    public readonly host : string;
     public readonly server : IIRCServer;
     public readonly reply : ReplyGenerator;
 
@@ -19,9 +19,9 @@ export default class IRCClient extends Transciever implements IIRCClient {
      */
     get identifier() {
         if (this.authed) {
-            return this.nick + "!" + this._username + "@" + this.address;
+            return this.nick + "!" + this._username + "@" + this.host;
         } else {
-            return this.address;
+            return this.host;
         }
     }
 
@@ -43,8 +43,12 @@ export default class IRCClient extends Transciever implements IIRCClient {
     constructor(socket : Socket, server : IIRCServer<IRCClient>) {
         super(socket);
         this.server = server;
-        this.address = socket.remoteAddress || "unknown";
+        this.host = socket.remoteAddress || "unknown";
         this.reply = new ReplyGenerator(this.server, this);
+
+        if (/^:(ffff)?:(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(this.host)) {
+            this.host.replace(/^.*:/, "");
+        }
     }
 
     /**

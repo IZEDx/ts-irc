@@ -47,7 +47,7 @@ export default class IRCServer implements IIRCServer {
         const client = new IRCClient(socket, this);
         this.clients.push(client);
 
-        log.server(`New client connected from ${client.address}.`);
+        log.server(`New client connected from ${client.host}.`);
 
         await client.pipe(this.commandHandler, client);
 

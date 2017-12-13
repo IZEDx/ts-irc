@@ -35,4 +35,7 @@ export default class ReplyGenerator {
 
     public errAlreadyRegistred = () =>
         `:${this.server.hostname} 462 ${this.client.nick} :Unauthorized command (already registered)`;
+
+    public pong = () =>
+        `PONG ${this.server.hostname} ${this.client.host}`;
 }

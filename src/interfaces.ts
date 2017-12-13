@@ -33,7 +33,7 @@ export interface ITransciever extends IPipeable, IActor {
 
 export interface IIRCClient extends ITransciever {
     nick : string;
-    address : string;
+    host : string;
     server : IIRCServer<IIRCClient>;
     reply : any;
     identifier : string;

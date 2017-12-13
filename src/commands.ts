@@ -25,7 +25,7 @@ export class BasicCommands extends CommandLib {
         if (client.authed) {
             log.interaction(`${client.identifier} changed nick from "${oldnick}" to "${newnick}".`);
         } else {
-            log.interaction(`${client.address} set their nick to ${newnick}.`);
+            log.interaction(`${client.host} set their nick to ${newnick}.`);
         }
 
         client.nick = newnick;
@@ -84,5 +84,10 @@ export class BasicCommands extends CommandLib {
 
         log.interaction(`${client.nick} > ${target.nick}\t${msg}`);
         targets[0].tell(`:${client.identifier} PRIVMSG ${target.nick} :${msg}`);
+    }
+
+    @registerCommand
+    public static async PING(client : IRCClient, prefix : string, args : string[]) {
+        // TODO: client.tell()
     }
 }
