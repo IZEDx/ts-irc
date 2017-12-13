@@ -69,4 +69,4 @@ export interface ICommandLib {
 }
 
 export type IParser<T = void> = IActor<string, T, IParseResult>;
-export interface IParseResult { prefix : string; command : string; args : string[]; msg : string }
+export interface IParseResult { prefix : string; command : string; args : string[]; msg : string; }

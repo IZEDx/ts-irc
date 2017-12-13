@@ -17,12 +17,12 @@ export class OperatorParser implements IParser {
         const segments = msg.split(":");
 
         // Got empty message
-        if (segments.length === 0) { 
-            return result; 
+        if (segments.length === 0) {
+            return result;
         }
 
         // Contains prefix => Get prefix and following args
-        if (/^\s*:/i.test(msg)) {             
+        if (/^\s*:/i.test(msg)) {
             const p = segments[1].split(" ");
             result.prefix = p[0];
             p.splice(0, 1);
@@ -30,7 +30,7 @@ export class OperatorParser implements IParser {
             segments.splice(0, 2);
 
         // No prefix => Get args
-        } else {                               
+        } else {
             const p = segments[0].split(" ");
             result.args.push(...p);
             segments.splice(0, 1);
@@ -38,7 +38,7 @@ export class OperatorParser implements IParser {
 
         // Get message content
         if (segments.length >= 1) {
-            result.msg = segments.join(":"); 
+            result.msg = segments.join(":");
         }
 
         // Trim args and remove empty ones (multiple whitespaces)
