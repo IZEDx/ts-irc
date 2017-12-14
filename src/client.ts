@@ -7,7 +7,7 @@ import ReplyGenerator from "./replies";
  * IRC Client
  */
 export default class IRCClient extends Transciever implements IIRCClient {
-    public nick : string;
+    public nick : string = "*";
     private _username : string;
     private _fullname : string;
     public readonly host : string;
@@ -29,7 +29,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
      * Returns true when the user has both, his nick and username set
      */
     get authed() : boolean {
-        return !!(this.nick && this._username);
+        return this._username !== undefined;
     }
 
     get username()  { return this._username;    }
