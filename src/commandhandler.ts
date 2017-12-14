@@ -69,7 +69,7 @@ export default class CommandHandler implements ICommandHandler {
      */
     public async tell(msg : string, client : IRCClient) {
         let found : {fn : ICommandFunction, lib : CommandLib}|false = false;
-        const cmd : IParseResult = await this.parser.tell(msg);
+        const cmd : IParseResult = this.parser.parse(msg);
 
         log.interaction(`${client.identifier} attempts to run ${cmd.command}.`);
 
@@ -82,14 +82,14 @@ export default class CommandHandler implements ICommandHandler {
         }
 
         if (!found) {
-            client.tell(client.reply.errUnknownCommand(cmd.command));
+            client.tell(client.reply.errUnknownCommand(cmd.command).toString());
             return;
         }
 
         const result = await found.fn.bind(found.lib)(client, cmd);
 
         if (result !== undefined) {
-            client.tell(result);
+            client.tell(result.toString());
         }
     }
 
