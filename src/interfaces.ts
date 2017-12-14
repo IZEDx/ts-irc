@@ -68,5 +68,7 @@ export interface ICommandLib {
     commands : Map<string, ICommandFunction>;
 }
 
-export type IParser<T = void> = IActor<string, T, IParseResult>;
+export interface IParser {
+    parse(message : string) : IParseResult;
+}
 export interface IParseResult { prefix : string; command : string; args : string[]; msg : string; }

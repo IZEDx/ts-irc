@@ -7,7 +7,7 @@ export class OperatorParser implements IParser {
     constructor() {
     }
 
-    public async tell(msg : string) : Promise<IParseResult> {
+    public parse(msg : string) : IParseResult {
         const result : IParseResult = {
             prefix: "",
             command: "",
@@ -50,8 +50,5 @@ export class OperatorParser implements IParser {
         }
 
         return result;
-    }
-
-    public async shutdown() {
     }
 }
