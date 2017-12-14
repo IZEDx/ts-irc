@@ -6,7 +6,7 @@ import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
 import {BasicCommands} from "./commands";
 
-const pjson : {version : string} = (<any>require)("../package");
+const pjson : {version : string} = (<any>require)("../package.json");
 
 /**
  * IRC Server
