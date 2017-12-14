@@ -1,0 +1,3 @@
+Test MOTD
+Hello there!
+This is line 3.
