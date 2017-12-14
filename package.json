@@ -12,7 +12,8 @@
     "start": "node dist/main.js",
     "postinstall": "npm run build",
     "lint": "./node_modules/.bin/tslint --project . -t codeFrame --force",
-    "lint-fix": "npm run lint-check -- --force"
+    "lint-fix": "npm run lint-check -- --force",
+    "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -25,7 +26,12 @@
   },
   "homepage": "https://github.com/IZEDx/ts-irc#readme",
   "devDependencies": {
+    "@types/chai": "^4.0.10",
+    "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.53",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
+    "ts-node": "^4.0.1",
     "tslint": "^5.8.0",
     "tslint-clean-code": "^0.2.0",
     "tslint-language-service": "^0.9.7",
