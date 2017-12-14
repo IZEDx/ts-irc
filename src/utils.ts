@@ -92,4 +92,5 @@ export namespace log {
     export const main           = (...msg : string[]) => logPrefix(chalk.red.bold("[ts-irc]"), ...msg);
     export const server         = (...msg : string[]) => logPrefix(chalk.blue.bold("[Server]"), ...msg);
     export const interaction    = (...msg : string[]) => logPrefix(chalk.green.bold("[Interaction]"), ...msg);
+    export const debug          = (...msg : string[]) => logPrefix(chalk.yellow.bold("[Debug]"), ...msg);
 }
