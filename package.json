@@ -1,16 +1,15 @@
 {
   "name": "ts-irc",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "IRC implementation in TypeScript",
   "main": "dist/main.js",
   "bin": {
-    "ts-irc": "./index.js"
+    "ts-irc": "./ts-irc.js"
   },
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "watch": "npm run build -- --watch",
     "start": "node dist/main.js",
-    "postinstall": "npm run build",
     "lint": "./node_modules/.bin/tslint --project . -t codeFrame --force",
     "lint-fix": "npm run lint-check -- --force",
     "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.ts"
