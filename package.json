@@ -12,7 +12,7 @@
     "start": "node dist/main.js",
     "lint": "./node_modules/.bin/tslint --project . -t codeFrame --force",
     "lint-fix": "npm run lint-check -- --force",
-    "test": "./node_modules/.bin/mocha -r ts-node/register tests/**/*.ts"
+    "test": "./node_modules/.bin/mocha -r ts-node/register tests/*.ts"
   },
   "repository": {
     "type": "git",
