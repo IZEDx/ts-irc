@@ -1,13 +1,16 @@
 
-import {IActor, IParser, ICommandHandler, ICommandFunction, IParseResult} from "./interfaces";
+import {IActor, IParser, ICommandHandler, ICommandFunction} from "./interfaces";
 import IRCClient from "./client";
+import IRCMessage from "./message";
 import {log} from "./utils";
 export {OperatorParser} from "./parser";
+
+export type CommandFunction = (sender : IActor, cmd : IRCMessage) => Promise<string | undefined>;
 
 /**
  * Global map of functions that can be imported in a CommandHandler
  */
-const commands : {[key : string] : {[key : string] : ICommandFunction}} = {};
+const commands : {[key : string] : {[key : string] : CommandFunction}} = {};
 
 /**
  * Decorator that registers a method as a command to be run. Will not be called with a proper this value.
@@ -69,7 +72,7 @@ export default class CommandHandler implements ICommandHandler {
      */
     public async tell(msg : string, client : IRCClient) {
         let found : {fn : ICommandFunction, lib : CommandLib}|false = false;
-        const cmd : IParseResult = this.parser.parse(msg);
+        const cmd : IRCMessage = new IRCMessage(this.parser.parse(msg));
 
         log.interaction(`${client.identifier} attempts to run ${cmd.command}.`);
 
@@ -89,7 +92,7 @@ export default class CommandHandler implements ICommandHandler {
         const result = await found.fn.bind(found.lib)(client, cmd);
 
         if (result !== undefined) {
-            client.tell(result.toString());
+            client.tell(result);
         }
     }
 

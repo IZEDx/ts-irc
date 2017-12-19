@@ -1,5 +1,5 @@
 import {IIRCClient, IIRCServer} from "./interfaces";
-import {IRCMessage} from "./message";
+import IRCMessage from "./message";
 
 /**
  * Creates IRC Reply Messages
@@ -7,112 +7,112 @@ import {IRCMessage} from "./message";
 export default class ReplyGenerator {
     constructor(public server : IIRCServer, public client : IIRCClient) {}
 
-    public welcome = () => IRCMessage.FROM_PARSERESULT({
+    public welcome = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "001",
         args: [this.client.nick],
         msg: `Welcome to the Internet Relay Network ${this.client.identifier}`
     });
 
-    public yourHost = (name : string, version : string) => IRCMessage.FROM_PARSERESULT({
+    public yourHost = (name : string, version : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "002",
         args: [this.client.nick],
         msg: `Your host is ${name}, running version ${version}`
     });
 
-    public created = (date : string) => IRCMessage.FROM_PARSERESULT({
+    public created = (date : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "003",
         args: [this.client.nick],
         msg: `This server was created ${date}`
     });
 
-    public myInfo = (options : {name : string, version : string, um : string, cm : string}) => IRCMessage.FROM_PARSERESULT({
+    public myInfo = (options : {name : string, version : string, um : string, cm : string}) => new IRCMessage({
         prefix: this.server.hostname,
         command: "004",
         args: [this.client.nick],
         msg: `${options.name} ${options.version} ${options.um} ${options.cm}`
     });
 
-    public motdStart = () => IRCMessage.FROM_PARSERESULT({
+    public motdStart = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "375",
         args: [this.client.nick],
         msg: "- " + this.server.hostname + " Message of the day - "
     });
 
-    public motd = (line : string) => IRCMessage.FROM_PARSERESULT({
+    public motd = (line : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "376",
         args: [this.client.nick],
         msg: "- " + line
     });
 
-    public endOfMotd = () => IRCMessage.FROM_PARSERESULT({
+    public endOfMotd = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "377",
         args: [this.client.nick],
         msg: "End of MOTD command"
     });
 
-    public errNoSuchNick = (nick : string) => IRCMessage.FROM_PARSERESULT({
+    public errNoSuchNick = (nick : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "401",
         args: [this.client.nick, nick],
         msg: "No such nick/channel"
     });
 
-    public errUnknownCommand = (command : string) => IRCMessage.FROM_PARSERESULT({
+    public errUnknownCommand = (command : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "421",
         args: [this.client.nick, command],
         msg: "Unknown command"
     });
 
-    public errNoMOTD = () => IRCMessage.FROM_PARSERESULT({
+    public errNoMOTD = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "422",
         args: [this.client.nick],
         msg: "MOTD File is missing"
     });
 
-    public errNoNicknameGiven = () => IRCMessage.FROM_PARSERESULT({
+    public errNoNicknameGiven = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "431",
         args: [this.client.nick],
         msg: "No nickname given"
     });
 
-    public errNicknameInUse = (nick : string) => IRCMessage.FROM_PARSERESULT({
+    public errNicknameInUse = (nick : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "433",
         args: [this.client.nick, nick],
         msg: "Nickname is already in use"
     });
 
-    public errNeedMoreParams = (command : string) => IRCMessage.FROM_PARSERESULT({
+    public errNeedMoreParams = (command : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "461",
         args: [this.client.nick, command],
         msg: "Not enough parameters"
     });
 
-    public errAlreadyRegistred = () => IRCMessage.FROM_PARSERESULT({
+    public errAlreadyRegistred = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "462",
         args: [this.client.nick],
         msg: "Unauthorized command (already registered)"
     });
 
-    public ping = () => IRCMessage.FROM_PARSERESULT({
+    public ping = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "PING",
         args: [this.server.hostname, this.client.host],
         msg: ""
     });
 
-    public pong = () => IRCMessage.FROM_PARSERESULT({
+    public pong = () => new IRCMessage({
         prefix: "",
         command: "PONG",
         args: [this.server.hostname, this.client.host],

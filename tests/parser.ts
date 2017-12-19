@@ -1,11 +1,11 @@
 
 import { OperatorParser } from "../src/parser";
-import { IParseResult, IParser } from "../src/interfaces";
+import { IIRCMessage, IParser } from "../src/interfaces";
 import { expect } from "chai";
 
-type MessageExpectation = {description: string, message: string, result: IParseResult};
+type MessageExpectation = {description: string, message: string, result: IIRCMessage};
 
-const emptyResult : IParseResult = {
+const emptyResult : IIRCMessage = {
     prefix: "",
     command: "",
     args: [],

@@ -1,4 +1,4 @@
-import {IParser, IParseResult} from "./interfaces";
+import {IParser, IIRCMessage} from "./interfaces";
 
 /**
  * Parses IRC Commands using string and array operations.
@@ -7,8 +7,8 @@ export class OperatorParser implements IParser {
     constructor() {
     }
 
-    public parse(msg : string) : IParseResult {
-        const result : IParseResult = {
+    public parse(msg : string) : IIRCMessage {
+        const result : IIRCMessage = {
             prefix: "",
             command: "",
             args: [],
