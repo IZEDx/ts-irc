@@ -2,8 +2,7 @@
 import IRCClient from "./client";
 import IRCMessage from "./message";
 import {registerCommand, CommandLib} from "./commandhandler";
-import {log} from "./utils";
-import {readFile} from "fs";
+import {log, readFile} from "./utils";
 
 let motd : string;
 
@@ -92,15 +91,7 @@ export class BasicCommands extends CommandLib {
 
         if (motd === undefined) {
             try {
-                motd = await new Promise<string>((resolve, reject) => {
-                    readFile("./motd.txt", (err, data) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(data.toString());
-                        }
-                    });
-                });
+                motd = (await readFile("./motd.txt")).toString();
             } catch (err) {
                 motd = "";
             }
