@@ -1,9 +1,8 @@
 
 import IRCClient from "./client";
+import IRCMessage from "./message";
 import {registerCommand, CommandLib} from "./commandhandler";
-import {log} from "./utils";
-import {IParseResult} from "./interfaces";
-import {readFile} from "fs";
+import {log, readFile} from "./utils";
 
 let motd : string;
 
@@ -12,7 +11,7 @@ let motd : string;
  */
 export class BasicCommands extends CommandLib {
     @registerCommand
-    public static async NICK(client : IRCClient, cmd : IParseResult) {
+    public static async NICK(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 1) {
             return client.reply.errNoNicknameGiven();
         }
@@ -39,7 +38,7 @@ export class BasicCommands extends CommandLib {
     }
 
     @registerCommand
-    public static async USER(client : IRCClient, cmd : IParseResult) {
+    public static async USER(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 1 || cmd.msg === "") {
             return client.reply.errNeedMoreParams("user");
         }
@@ -62,13 +61,13 @@ export class BasicCommands extends CommandLib {
     }
 
     @registerCommand
-    public static async QUIT(client : IRCClient, cmd : IParseResult) {
+    public static async QUIT(client : IRCClient, cmd : IRCMessage) {
         log.interaction(`${client.identifier} disconnected with reason: ${cmd.msg !== "" ? cmd.msg : "Not given"}.`);
         client.shutdown();
     }
 
     @registerCommand
-    public static async PRIVMSG(client : IRCClient, cmd : IParseResult) {
+    public static async PRIVMSG(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
         }
@@ -101,22 +100,14 @@ export class BasicCommands extends CommandLib {
     }
 
     @registerCommand
-    public static async MOTD(client : IRCClient, cmd : IParseResult) {
+    public static async MOTD(client : IRCClient, cmd : IRCMessage) {
         if (!client.authed) {
             return;
         }
 
         if (motd === undefined) {
             try {
-                motd = await new Promise<string>((resolve, reject) => {
-                    readFile("./motd.txt", (err, data) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(data.toString());
-                        }
-                    });
-                });
+                motd = (await readFile("./motd.txt")).toString();
             } catch (err) {
                 motd = "";
             }
@@ -136,10 +127,10 @@ export class BasicCommands extends CommandLib {
     }
 
     @registerCommand
-    public static async PING(client : IRCClient, cmd : IParseResult) {
+    public static async PING(client : IRCClient, cmd : IRCMessage) {
         return client.reply.pong();
     }
 
     @registerCommand
-    public static async PONG(client : IRCClient, cmd : IParseResult) {}
+    public static async PONG(client : IRCClient, cmd : IRCMessage) {}
 }

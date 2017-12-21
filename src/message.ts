@@ -1,36 +1,36 @@
-import {IParseResult, IParser} from "./interfaces";
+import {IIRCMessage} from "./interfaces";
 
-export class IRCMessage implements IParseResult {
-    private constructor(
-        public prefix : string,
-        public command : string,
-        public args : string[],
-        public msg : string
-    ) {}
+export default class IRCMessage implements IIRCMessage {
+    public prefix : string;
+    public command : string;
+    public args : string[];
+    public msg : string;
 
-    public static FROM_PARSERESULT(message : IParseResult) {
-        return new IRCMessage(message.prefix, message.command, message.args, message.msg);
+    constructor(message : IIRCMessage) {
+        Object.assign(this, message);
     }
 
-    public static FROM_STRING(parser: IParser, message : string) {
-        const pr = parser.parse(message);
-        return new IRCMessage(pr.prefix, pr.command, pr.args, pr.msg);
-    }
-
-    public toString() {
+    public toString() : string {
         let result = "";
 
-        if (this.prefix !== "") {
-            result += ":" + this.prefix + " ";
+        if (this.prefix !== "" ) {
+            result += ":" + this.prefix.replace(/\s/i, "") + " ";
         }
 
-        result += this.command + " ";
-        result += this.args.join(" ") + " ";
+        result += this.command.trim().length > 0 ? this.command + " " : "";
 
-        if (this.msg !== "") {
-            result += ":" + this.msg;
+        if (result === "") {
+            return "";
         }
 
-        return result;
+        if (this.args.length > 0) {
+            result += this.args.map(arg => arg.trim()).join(" ") + " ";
+        }
+
+        if (this.msg.replace(/\s/i, "") !== "") {
+            result += ":" + this.msg.trim();
+        }
+
+        return result + "\r\n";
     }
 }

@@ -4,6 +4,7 @@ export interface AsyncIterable<T> {[Symbol.asyncIterator](): AsyncIterator<T>; }
 
 import {IDataEvent, IPipeable} from "./interfaces";
 import chalk from "chalk";
+import {readFile as readFileCallback} from "fs";
 
 export async function* faucet(pipeable : IPipeable) : AsyncIterable<string> {
     let waiting  : ((data : string) => void) | null;
@@ -93,4 +94,16 @@ export namespace log {
     export const server         = (...msg : string[]) => logPrefix(chalk.blue.bold("[Server]"), ...msg);
     export const interaction    = (...msg : string[]) => logPrefix(chalk.green.bold("[Interaction]"), ...msg);
     export const debug          = (...msg : string[]) => logPrefix(chalk.yellow.bold("[Debug]"), ...msg);
+}
+
+export function readFile(path : string | Buffer) : Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+        readFileCallback(path, (err, data) => {
+            if (!err) {
+                resolve(data);
+            } else {
+                reject(err);
+            }
+        });
+    });
 }
