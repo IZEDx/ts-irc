@@ -84,7 +84,7 @@ export class BasicCommands extends CommandLib {
     }
 
     @registerCommand
-    public static async NOTICE(client : IRCClient, cmd : IParseResult) {
+    public static async NOTICE(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
         }
