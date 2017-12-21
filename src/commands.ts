@@ -81,7 +81,23 @@ export class BasicCommands extends CommandLib {
         }
 
         log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
-        targets[0].tell(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
+        target.tell(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
+    }
+
+    @registerCommand
+    public static async NOTICE(client : IRCClient, cmd : IParseResult) {
+        if (cmd.args.length < 2 || !client.authed) {
+            return;
+        }
+
+        const targets : IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
+        const target : IRCClient = targets[0];
+
+        if (targets.length > 0) {
+            log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
+            target.tell(`:${client.identifier} NOTICE ${target.nick} :${cmd.msg}`);
+        }
+
     }
 
     @registerCommand
