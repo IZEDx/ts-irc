@@ -9,12 +9,12 @@ type IRCServer = IIRCServer<IRCClient>;
  * IRC Client
  */
 export default class IRCClient extends Transciever implements IIRCClient {
-    public nick : string = "*";
-    private _username : string;
-    private _fullname : string;
-    public readonly host : string;
-    public readonly server : IRCServer;
-    public readonly reply : ReplyGenerator;
+    public nick: string = "*";
+    private _username: string;
+    private _fullname: string;
+    public readonly host: string;
+    public readonly server: IRCServer;
+    public readonly reply: ReplyGenerator;
 
     /**
      * Returns an identifier for this user
@@ -30,7 +30,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
     /**
      * Returns true when the user has both, his nick and username set
      */
-    get authed() : boolean {
+    get authed(): boolean {
         return this._username !== undefined;
     }
 
@@ -42,7 +42,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
      * @param {Socket} socket Socket of this client
      * @param {IIRCServer<IRCClient>} server Server the client is on
      */
-    constructor(socket : Socket, server : IRCServer) {
+    constructor(socket: Socket, server: IRCServer) {
         super(socket);
         this.server = server;
         this.host = socket.remoteAddress || "unknown";
@@ -56,7 +56,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
     /**
      * Sets the username of this client. Can be done once
      */
-    set username(name : string) {
+    set username(name: string) {
         if (this._username) { return; }
         this._username = name;
     }
@@ -64,7 +64,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
     /**
      * Sets the fullname of this client. Can be done once
      */
-    set fullname(name : string) {
+    set fullname(name: string) {
         if (this._fullname) { return; }
         this._fullname = name;
     }
@@ -74,7 +74,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
      * @param msg Message to be sent
      * @return {Promise<void>}
      */
-    public async tell(msg : string) {
+    public async tell(msg: string) {
         super.tell(msg.trim() + "\r\n");
     }
 }

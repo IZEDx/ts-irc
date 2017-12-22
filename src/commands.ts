@@ -4,14 +4,14 @@ import IRCMessage from "./message";
 import {registerCommand as Command, CommandLib} from "./commandhandler";
 import {log, readFile} from "./utils";
 
-let motd : string;
+let motd: string;
 
 /**
  * Class containing some essential commands.
  */
 export class BasicCommands extends CommandLib {
     @Command
-    public static async NICK(client : IRCClient, cmd : IRCMessage) {
+    public static async NICK(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1) {
             return client.reply.errNoNicknameGiven();
         }
@@ -38,7 +38,7 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
-    public static async USER(client : IRCClient, cmd : IRCMessage) {
+    public static async USER(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1 || cmd.msg === "") {
             return client.reply.errNeedMoreParams("user");
         }
@@ -61,7 +61,7 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
-    public static async QUIT(client : IRCClient, cmd : IRCMessage) {
+    public static async QUIT(client: IRCClient, cmd: IRCMessage) {
         if (cmd.msg === "") {
             cmd.msg = "Client Quit";
         }
@@ -71,13 +71,13 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
-    public static async PRIVMSG(client : IRCClient, cmd : IRCMessage) {
+    public static async PRIVMSG(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
         }
 
-        const targets : IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
-        const target : IRCClient = targets[0];
+        const targets: IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
+        const target: IRCClient = targets[0];
 
         if (targets.length === 0) {
             return client.reply.errNoSuchNick(cmd.args[0]);
@@ -88,13 +88,13 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
-    public static async NOTICE(client : IRCClient, cmd : IRCMessage) {
+    public static async NOTICE(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
         }
 
-        const targets : IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
-        const target : IRCClient = targets[0];
+        const targets: IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
+        const target: IRCClient = targets[0];
 
         if (targets.length > 0) {
             log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
@@ -104,7 +104,7 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
-    public static async LUSERS(client : IRCClient, cmd : IRCMessage) {
+    public static async LUSERS(client: IRCClient, cmd: IRCMessage) {
         if (!client.authed) {
             return;
         }
@@ -122,7 +122,7 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
-    public static async MOTD(client : IRCClient, cmd : IRCMessage) {
+    public static async MOTD(client: IRCClient, cmd: IRCMessage) {
         if (!client.authed) {
             return;
         }
@@ -151,10 +151,10 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
-    public static async PING(client : IRCClient, cmd : IRCMessage) {
+    public static async PING(client: IRCClient, cmd: IRCMessage) {
         return client.reply.pong();
     }
 
     @Command
-    public static async PONG(client : IRCClient, cmd : IRCMessage) {}
+    public static async PONG(client: IRCClient, cmd: IRCMessage) {}
 }

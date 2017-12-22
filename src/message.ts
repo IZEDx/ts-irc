@@ -1,16 +1,16 @@
 import {IIRCMessage} from "./interfaces";
 
 export default class IRCMessage implements IIRCMessage {
-    public prefix : string;
-    public command : string;
-    public args : string[];
-    public msg : string;
+    public prefix: string;
+    public command: string;
+    public args: string[];
+    public msg: string;
 
-    constructor(message : IIRCMessage) {
+    constructor(message: IIRCMessage) {
         Object.assign(this, message);
     }
 
-    public toString() : string {
+    public toString(): string {
         let result = "";
 
         if (this.prefix !== "" ) {

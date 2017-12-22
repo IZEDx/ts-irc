@@ -13,7 +13,7 @@ describe("p", "Port to listen on.");
  * Main function
  * @param {string[]} arg Process arguments, including the first two "npm start"
  */
-async function main(args : Arguments) {
+async function main(args: Arguments) {
     const port    = parseInt(args.port);
     const server  = new IRCServer(port, hostname());
 

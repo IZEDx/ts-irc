@@ -6,29 +6,29 @@ import {BasicCommands} from "./commands";
 import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
 
-const pjson : {version : string} = (<any>require)("../package.json");
+const pjson: {version: string} = (<any>require)("../package.json");
 
 /**
  * IRC Server
  */
 export default class IRCServer implements IIRCServer {
-    private resolve : () => void = nop;
+    private resolve: () => void = nop;
 
-    public readonly port : number;
-    public readonly server : Server;
-    public readonly commandHandler : CommandHandler;
-    public readonly clients : IRCClient[] = [];
-    public readonly hostname : string;
-    public readonly created : Date;
+    public readonly port: number;
+    public readonly server: Server;
+    public readonly commandHandler: CommandHandler;
+    public readonly clients: IRCClient[] = [];
+    public readonly hostname: string;
+    public readonly created: Date;
 
-    public readonly version : string = pjson.version;
+    public readonly version: string = pjson.version;
 
     /**
      * Creates a new IRC Server instance
      * @param {number} port Port to run the server on
      * @param {string|void} hostname Hostname to run the server on
      */
-    constructor(port : number, hostname : string = "localhost") {
+    constructor(port: number, hostname: string = "localhost") {
         this.port = port;
         this.hostname = hostname;
         this.server = createServer();
@@ -43,7 +43,7 @@ export default class IRCServer implements IIRCServer {
      * @param {Socket} socket Socket to the client
      * @returns {Promise<void>} Promise that resolves when the client is disconnected
      */
-    public async onConnection(socket : Socket) {
+    public async onConnection(socket: Socket) {
         const client = new IRCClient(socket, this);
         this.clients.push(client);
 
@@ -71,7 +71,7 @@ export default class IRCServer implements IIRCServer {
      * @param {IRCClient[T]} equals Value to match
      * @return {Promise<IRCClient[]} Promise that resolves to the list of clients
      */
-    public async getClients<T extends keyof IRCClient>(where : T, equals : IRCClient[T]) : Promise<IRCClient[]> {
+    public async getClients<T extends keyof IRCClient>(where: T, equals: IRCClient[T]): Promise<IRCClient[]> {
         return this.clients.filter(client => client.authed).filter(client => client[where] === equals);
     }
 
@@ -80,12 +80,12 @@ export default class IRCServer implements IIRCServer {
      * @param {string} msg Message to broadcast
      * @param {IRCClient[]|void} clients Optional list of clients to broadcast to
      */
-    public async broadcast(msg : string, clients? : IRCClient[]) {
+    public async broadcast(msg: string, clients?: IRCClient[]) {
         if (!clients) {
             clients = this.clients.filter(client => client.authed);
         }
 
-        const promises : Promise<void>[] = [];
+        const promises: Promise<void>[] = [];
 
         for (const client of clients) {
             promises.push(client.tell(msg));
@@ -94,7 +94,7 @@ export default class IRCServer implements IIRCServer {
         await Promise.all(promises);
     }
 
-    public async introduceToClient(client : IRCClient) {
+    public async introduceToClient(client: IRCClient) {
         await Promise.all([
             client.tell(client.reply.rplWelcome().toString()),
             client.tell(client.reply.rplYourHost(this.hostname, this.version).toString()),

@@ -6,14 +6,14 @@ import {Socket} from "net";
  * Enables sending and receiving of ReadWriteStreams like Sockets
  */
 class Transciever implements ITransciever {
-    protected _shutdown : boolean = false;
-    protected socket : Socket;
+    protected _shutdown: boolean = false;
+    protected socket: Socket;
 
-    constructor(socket : Socket) {
+    constructor(socket: Socket) {
         this.socket = socket;
     }
 
-    public async tell(msg : string) {
+    public async tell(msg: string) {
         this.socket.write(msg);
     }
 
@@ -23,7 +23,7 @@ class Transciever implements ITransciever {
         this.socket.destroy();
     }
 
-    public async pipe(target : IActor, then? : IActor) {
+    public async pipe(target: IActor, then?: IActor) {
         for await (const data of listen<Buffer>(this.socket)) {
             if (this._shutdown) { return; }
             target.tell(data.toString(), then || this);

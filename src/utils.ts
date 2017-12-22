@@ -10,13 +10,13 @@ import {readFile as readFileCallback} from "fs";
  * Async iterator to subscribe on a pipeable.
  * @param {IPipeable} pipeable Pipeable to read
  */
-export async function* faucet(pipeable : IPipeable) : AsyncIterable<string> {
-    let waiting  : ((data : string) => void) | null;
-    const buffered : string[] = [];
+export async function* faucet(pipeable: IPipeable): AsyncIterable<string> {
+    let waiting: ((data: string) => void) | null;
+    const buffered: string[] = [];
     let ended               = false;
 
     pipeable.pipe({
-        async tell(msg : string) {
+        async tell(msg: string) {
             if (waiting) {
                 waiting(msg);
                 waiting = null;
@@ -46,10 +46,10 @@ export async function* faucet(pipeable : IPipeable) : AsyncIterable<string> {
  * @param {IDataEvent<T>} stream
  * @returns {AsyncIterable<T>}
  */
-export async function* listen<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
-    let waitingResolve  : null | ((data : T) => void);
-    let waitingReject   : (err : Error) => void;
-    const buffered : T[]                     = [];
+export async function* listen<T>(stream: IDataEvent<T>): AsyncIterable<T> {
+    let waitingResolve: null | ((data: T) => void);
+    let waitingReject: (err: Error) => void;
+    const buffered: T[]                     = [];
     let ended                                   = false;
 
     stream.on("error", err => waitingReject && waitingReject(err));
@@ -63,7 +63,7 @@ export async function* listen<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
         waitingResolve = null;
     });
 
-    let error : Error|undefined;
+    let error: Error|undefined;
     while (error === undefined) {
         try {
             yield await new Promise<T>((resolve, reject) => {
@@ -87,7 +87,7 @@ export async function* listen<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
  * Does nothing.
  * @param args Anything.
  */
-export const nop = (...args : any[]) => {};
+export const nop = (...args: any[]) => {};
 
 /**
  * Time utilities
@@ -100,21 +100,21 @@ export namespace time {
  * Logging utilities
  */
 export namespace log {
-    function logPrefix(prefix : string, ...msg : string[]) {
+    function logPrefix(prefix: string, ...msg: string[]) {
         console.log(prefix + "\t" + chalk.gray(time.local()) + "\t", ...msg);
     }
 
-    export const main           = (...msg : string[]) => logPrefix(chalk.red.bold("[ts-irc]"), ...msg);
-    export const server         = (...msg : string[]) => logPrefix(chalk.blue.bold("[Server]"), ...msg);
-    export const interaction    = (...msg : string[]) => logPrefix(chalk.green.bold("[Interaction]"), ...msg);
-    export const debug          = (...msg : string[]) => logPrefix(chalk.yellow.bold("[Debug]"), ...msg);
+    export const main           = (...msg: string[]) => logPrefix(chalk.red.bold("[ts-irc]"), ...msg);
+    export const server         = (...msg: string[]) => logPrefix(chalk.blue.bold("[Server]"), ...msg);
+    export const interaction    = (...msg: string[]) => logPrefix(chalk.green.bold("[Interaction]"), ...msg);
+    export const debug          = (...msg: string[]) => logPrefix(chalk.yellow.bold("[Debug]"), ...msg);
 }
 
 /**
  * Promise wrapper for fs.readFile
  * @param path File to be read.
  */
-export function readFile(path : string | Buffer) : Promise<Buffer> {
+export function readFile(path: string | Buffer): Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => {
         readFileCallback(path, (err, data) => {
             if (!err) {
@@ -132,7 +132,7 @@ export function readFile(path : string | Buffer) : Promise<Buffer> {
  * @param {string} key Key to get.
  * @param {V} def Value to return if not found.
  */
-export function getOrDefault<V>(map : {[key : string] : V}, key : string, def : V) : V {
+export function getOrDefault<V>(map: {[key: string]: V}, key: string, def: V): V {
     const v = map[key];
     if (v === undefined) {
         map[key] = def;

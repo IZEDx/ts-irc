@@ -8,7 +8,7 @@ import {OperatorParser} from "./parser";
 /**
  * Global map of functions that can be imported in a CommandHandler
  */
-const commands : {[key : string] : {[key : string] : ICommandFunction}} = {};
+const commands: {[key: string]: {[key: string]: ICommandFunction}} = {};
 
 /**
  * Decorator that registers a method as a command to be run. Will not be called with a proper this value.
@@ -16,7 +16,7 @@ const commands : {[key : string] : {[key : string] : ICommandFunction}} = {};
  * @param {string} propertyKey Key of the method.
  * @param {PropertyDescriptor} descriptor Descriptor
  */
-export function registerCommand(target : Function, propertyKey: string, descriptor: PropertyDescriptor) {
+export function registerCommand(target: Function, propertyKey: string, descriptor: PropertyDescriptor) {
     getOrDefault(commands, target.name.toLowerCase(), {})[propertyKey.toLowerCase()] = target[propertyKey];
 }
 
@@ -27,7 +27,7 @@ export class CommandLib {
     /**
      * Returns all methods with the the @registerCommand decorator.
      */
-    get commands() : {[key : string] : ICommandFunction} {
+    get commands(): {[key: string]: ICommandFunction} {
         return getOrDefault(commands, this.constructor.name.toLowerCase(), {});
     }
 }
@@ -36,14 +36,14 @@ export class CommandLib {
  * Handles all the commands.
  */
 export default class CommandHandler implements ICommandHandler {
-    public readonly parser : IParser;
-    public readonly libs : CommandLib[];
+    public readonly parser: IParser;
+    public readonly libs: CommandLib[];
 
     /**
      * Creates a new CommandHandler.
      * @param {CommandLib[]} libs Libraries of commands to use.
      */
-    constructor(...libs : CommandLib[]) {
+    constructor(...libs: CommandLib[]) {
         this.parser = new OperatorParser();
         this.libs = libs;
     }
@@ -53,9 +53,9 @@ export default class CommandHandler implements ICommandHandler {
      * @param {string} msg Message containing command.
      * @param {IRCClient} client Client to respond to.
      */
-    public async tell(msg : string, client : IRCClient) {
-        let found : {fn : ICommandFunction, lib : CommandLib}|false = false;
-        const cmd : IRCMessage = new IRCMessage(this.parser.parse(msg));
+    public async tell(msg: string, client: IRCClient) {
+        let found: {fn: ICommandFunction, lib: CommandLib}|false = false;
+        const cmd: IRCMessage = new IRCMessage(this.parser.parse(msg));
 
         log.interaction(`${client.identifier} attempts to run ${cmd.command}.`);
 
@@ -72,7 +72,7 @@ export default class CommandHandler implements ICommandHandler {
             return;
         }
 
-        const result : IRCMessage | IRCMessage[] | undefined = await found.fn.bind(found.lib)(client, cmd);
+        const result: IRCMessage | IRCMessage[] | undefined = await found.fn.bind(found.lib)(client, cmd);
 
         if (result !== undefined) {
             if (result instanceof IRCMessage) {
@@ -89,6 +89,6 @@ export default class CommandHandler implements ICommandHandler {
      * Shuts down this CommandHandler
      * @param sender
      */
-    public async shutdown(sender : IActor) {
+    public async shutdown(sender: IActor) {
     }
 }
