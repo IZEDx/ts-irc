@@ -75,3 +75,9 @@ Runs TSLint to statically analyze the code and fix the issues immediately:
 ```
 ts-irc$ npm run lint-fix
 ```
+
+Runs the tests:
+
+```
+ts-irc$ npm test
+```
