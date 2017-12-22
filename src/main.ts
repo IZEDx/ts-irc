@@ -2,18 +2,18 @@
 import IRCServer from "./server";
 import {log} from "./utils";
 import {hostname} from "os";
+import {parse, alias, default as define, describe,  Arguments} from "yargs";
+
+alias   ("p", "port");
+define  ("p", 7776);
+describe("p", "Port to listen on.");
 
 /**
  * Main function
- * @param {string[]} argv Process arguments, including the first two "npm start"
+ * @param {string[]} arg Process arguments, including the first two "npm start"
  */
-async function main(argv : string[]) {
-    if (argv.length < 3) {
-        console.log("Usage: ts-irc <port>");
-        return;
-    }
-
-    const port    = parseInt(argv[2]);
+async function main(args : Arguments) {
+    const port    = parseInt(args.port);
     const server  = new IRCServer(port, hostname());
 
     // Printing empty lines to clear the screen
@@ -22,11 +22,11 @@ async function main(argv : string[]) {
         console.log("\r\n");
     }
 
-    log.main("Starting IRC Server.");
+    log.main("Starting IRC Server on port " + port);
 
     await server.listen(); // Starting the server and waiting for it to finish
 
-    log.main("Shutdown");
+    log.main("Shutdown.");
 }
 
-main(process.argv);
+main(parse(process.argv));
