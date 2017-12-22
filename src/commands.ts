@@ -1,7 +1,7 @@
 
 import IRCClient from "./client";
 import IRCMessage from "./message";
-import {registerCommand, CommandLib} from "./commandhandler";
+import {registerCommand as Command, CommandLib} from "./commandhandler";
 import {log, readFile} from "./utils";
 
 let motd : string;
@@ -10,7 +10,7 @@ let motd : string;
  * Class containing some essential commands.
  */
 export class BasicCommands extends CommandLib {
-    @registerCommand
+    @Command
     public static async NICK(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 1) {
             return client.reply.errNoNicknameGiven();
@@ -37,7 +37,7 @@ export class BasicCommands extends CommandLib {
         }
     }
 
-    @registerCommand
+    @Command
     public static async USER(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 1 || cmd.msg === "") {
             return client.reply.errNeedMoreParams("user");
@@ -60,13 +60,13 @@ export class BasicCommands extends CommandLib {
         }
     }
 
-    @registerCommand
+    @Command
     public static async QUIT(client : IRCClient, cmd : IRCMessage) {
         log.interaction(`${client.identifier} disconnected with reason: ${cmd.msg !== "" ? cmd.msg : "Not given"}.`);
         client.shutdown();
     }
 
-    @registerCommand
+    @Command
     public static async PRIVMSG(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
@@ -83,7 +83,7 @@ export class BasicCommands extends CommandLib {
         target.tell(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
     }
 
-    @registerCommand
+    @Command
     public static async NOTICE(client : IRCClient, cmd : IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
@@ -99,7 +99,7 @@ export class BasicCommands extends CommandLib {
 
     }
 
-    @registerCommand
+    @Command
     public static async MOTD(client : IRCClient, cmd : IRCMessage) {
         if (!client.authed) {
             return;
@@ -126,11 +126,11 @@ export class BasicCommands extends CommandLib {
         return client.reply.endOfMotd();
     }
 
-    @registerCommand
+    @Command
     public static async PING(client : IRCClient, cmd : IRCMessage) {
         return client.reply.pong();
     }
 
-    @registerCommand
+    @Command
     public static async PONG(client : IRCClient, cmd : IRCMessage) {}
 }
