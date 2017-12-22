@@ -71,3 +71,8 @@ export interface IIRCMessage {
     args : string[];
     msg : string;
 }
+
+export type Console = IWriteStream & {
+    columns : number;
+    rows : number;
+};
