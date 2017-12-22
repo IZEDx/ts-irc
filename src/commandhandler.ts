@@ -2,7 +2,7 @@
 import {IActor, IParser, ICommandHandler, ICommandFunction} from "./interfaces";
 import IRCClient from "./client";
 import IRCMessage from "./message";
-import {log} from "./utils";
+import {log, getOrDefault} from "./utils";
 export {OperatorParser} from "./parser";
 
 export type CommandFunction = (sender : IActor, cmd : IRCMessage) => Promise<string | undefined>;
@@ -20,21 +20,6 @@ const commands : {[key : string] : {[key : string] : CommandFunction}} = {};
  */
 export function registerCommand(target : Function, propertyKey: string, descriptor: PropertyDescriptor) {
     getOrDefault(commands, target.name.toLowerCase(), {})[propertyKey.toLowerCase()] = target[propertyKey];
-}
-
-/**
- * Gets value from map or returns default, if not found.
- * @param {{[key : string] : V}} map Map to get from.
- * @param {string} key Key to get.
- * @param {V} def Value to return if not found.
- */
-function getOrDefault<V>(map : {[key : string] : V}, key : string, def : V) : V {
-    const v = map[key];
-    if (v === undefined) {
-        map[key] = def;
-        return def;
-    }
-    return v;
 }
 
 /**

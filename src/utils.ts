@@ -6,6 +6,10 @@ import {IDataEvent, IPipeable} from "./interfaces";
 import chalk from "chalk";
 import {readFile as readFileCallback} from "fs";
 
+/**
+ * Async iterator to subscribe on a pipeable.
+ * @param {IPipeable} pipeable Pipeable to read
+ */
 export async function* faucet(pipeable : IPipeable) : AsyncIterable<string> {
     let waiting  : ((data : string) => void) | null;
     const buffered : string[] = [];
@@ -79,15 +83,25 @@ export async function* listen<T>(stream : IDataEvent<T>) : AsyncIterable<T> {
     }
 }
 
+/**
+ * Does nothing.
+ * @param args Anything.
+ */
 export const nop = (...args : any[]) => {};
 
-export namespace now {
+/**
+ * Time utilities
+ */
+export namespace time {
     export const local = () => new Date().toLocaleString();
 }
 
+/**
+ * Logging utilities
+ */
 export namespace log {
     function logPrefix(prefix : string, ...msg : string[]) {
-        console.log(prefix + "\t" + chalk.gray(now.local()) + "\t", ...msg);
+        console.log(prefix + "\t" + chalk.gray(time.local()) + "\t", ...msg);
     }
 
     export const main           = (...msg : string[]) => logPrefix(chalk.red.bold("[ts-irc]"), ...msg);
@@ -96,6 +110,10 @@ export namespace log {
     export const debug          = (...msg : string[]) => logPrefix(chalk.yellow.bold("[Debug]"), ...msg);
 }
 
+/**
+ * Promise wrapper for fs.readFile
+ * @param path File to be read.
+ */
 export function readFile(path : string | Buffer) : Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => {
         readFileCallback(path, (err, data) => {
@@ -106,4 +124,19 @@ export function readFile(path : string | Buffer) : Promise<Buffer> {
             }
         });
     });
+}
+
+/**
+ * Gets value from map or returns default, if not found.
+ * @param {{[key : string] : V}} map Map to get from.
+ * @param {string} key Key to get.
+ * @param {V} def Value to return if not found.
+ */
+export function getOrDefault<V>(map : {[key : string] : V}, key : string, def : V) : V {
+    const v = map[key];
+    if (v === undefined) {
+        map[key] = def;
+        return def;
+    }
+    return v;
 }
