@@ -5,7 +5,7 @@ import {hostname} from "os";
 import {parse, alias, default as define, describe,  Arguments} from "yargs";
 
 alias   ("p", "port");
-define  ("p", 7776);
+define  ("p", 6667);
 describe("p", "Port to listen on.");
 
 /**
