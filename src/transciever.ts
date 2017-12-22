@@ -1,11 +1,11 @@
 import {listen} from "./utils";
-import {IPipeable, IActor} from "./interfaces";
+import {ITransciever, IActor} from "./interfaces";
 import {Socket} from "net";
 
 /**
  * Enables sending and receiving of ReadWriteStreams like Sockets
  */
-class Transciever implements IPipeable, IActor {
+class Transciever implements ITransciever {
     protected _shutdown : boolean = false;
     protected socket : Socket;
 

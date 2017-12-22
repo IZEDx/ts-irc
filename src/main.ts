@@ -3,9 +3,7 @@ import IRCServer from "./server";
 import {log} from "./utils";
 import {hostname} from "os";
 import {parse, alias, default as define, describe,  Arguments} from "yargs";
-import {Console} from "./interfaces";
-
-const stdout : Console = <any>process.stdout;
+import {IConsole} from "./interfaces";
 
 alias   ("p", "port");
 define  ("p", 6667);
@@ -20,7 +18,7 @@ async function main(args : Arguments) {
     const server  = new IRCServer(port, hostname());
 
     // Printing empty lines to clear the screen
-    for (let i = 1; i < stdout.rows; i += 1) {
+    for (let i = 1; i < (<IConsole>process.stdout).rows; i += 1) {
         console.log("\r\n");
     }
 

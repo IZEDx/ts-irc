@@ -1,10 +1,10 @@
-import {IIRCClient, IIRCServer} from "./interfaces";
+import {IIRCClient, IIRCServer, IReplyGenerator} from "./interfaces";
 import IRCMessage from "./message";
 
 /**
  * Creates IRC Reply Messages
  */
-export default class ReplyGenerator {
+export default class ReplyGenerator implements IReplyGenerator {
     constructor(public server : IIRCServer, public client : IIRCClient) {}
 
     public error = (msg : string) => new IRCMessage({

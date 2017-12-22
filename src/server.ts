@@ -1,10 +1,10 @@
 
 import {createServer, Socket, Server} from "net";
 import IRCClient from "./client";
-import CommandHandler, {OperatorParser} from "./commandhandler";
+import CommandHandler from "./commandhandler";
+import {BasicCommands} from "./commands";
 import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
-import {BasicCommands} from "./commands";
 
 const pjson : {version : string} = (<any>require)("../package.json");
 
@@ -34,7 +34,7 @@ export default class IRCServer implements IIRCServer {
         this.server = createServer();
         this.server.on("connection", async socket => await this.onConnection(socket));
         this.server.on("close", () => this.resolve());
-        this.commandHandler = new CommandHandler(new OperatorParser(), new BasicCommands());
+        this.commandHandler = new CommandHandler(new BasicCommands());
         this.created = new Date();
     }
 

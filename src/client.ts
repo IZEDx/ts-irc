@@ -1,7 +1,9 @@
 import Transciever from "./transciever";
 import {Socket} from "net";
-import {IIRCServer, IIRCClient} from "./interfaces";
+import {IIRCServer , IIRCClient} from "./interfaces";
 import ReplyGenerator from "./replies";
+
+type IRCServer = IIRCServer<IRCClient>;
 
 /**
  * IRC Client
@@ -11,7 +13,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
     private _username : string;
     private _fullname : string;
     public readonly host : string;
-    public readonly server : IIRCServer;
+    public readonly server : IRCServer;
     public readonly reply : ReplyGenerator;
 
     /**
@@ -40,7 +42,7 @@ export default class IRCClient extends Transciever implements IIRCClient {
      * @param {Socket} socket Socket of this client
      * @param {IIRCServer<IRCClient>} server Server the client is on
      */
-    constructor(socket : Socket, server : IIRCServer<IRCClient>) {
+    constructor(socket : Socket, server : IRCServer) {
         super(socket);
         this.server = server;
         this.host = socket.remoteAddress || "unknown";
