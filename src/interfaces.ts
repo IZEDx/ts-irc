@@ -62,12 +62,6 @@ export interface ICommandHandler extends IActor {
     tell(msg : string, target : IActor) : Promise<void>;
 }
 
-export type ICommandFunction = (sender : IActor, cmd : IIRCMessage) => Promise<string | undefined>;
-
-export interface ICommandLib {
-    commands : Map<string, ICommandFunction>;
-}
-
 export interface IParser {
     parse(message : string) : IIRCMessage;
 }
