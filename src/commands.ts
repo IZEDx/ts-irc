@@ -62,7 +62,11 @@ export class BasicCommands extends CommandLib {
 
     @Command
     public static async QUIT(client : IRCClient, cmd : IRCMessage) {
-        log.interaction(`${client.identifier} disconnected with reason: ${cmd.msg !== "" ? cmd.msg : "Not given"}.`);
+        if (cmd.msg === "") {
+            cmd.msg = "Client Quit";
+        }
+        log.interaction(`${client.identifier} quit with reason: ${cmd.msg}.`);
+        client.tell(client.reply.error(`Closing Link: ${client.host} (${cmd.msg})`).toString());
         client.shutdown();
     }
 
@@ -117,13 +121,13 @@ export class BasicCommands extends CommandLib {
             return client.reply.errNoMOTD();
         }
 
-        client.tell(client.reply.motdStart().toString());
+        client.tell(client.reply.rplMOTDStart().toString());
 
         for (const line of motd.split("\n")) {
-            client.tell(client.reply.motd(line.trim()).toString());
+            client.tell(client.reply.rplMOTD(line.trim()).toString());
         }
 
-        return client.reply.endOfMotd();
+        return client.reply.rplEndOfMotd();
     }
 
     @Command

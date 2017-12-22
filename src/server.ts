@@ -96,10 +96,10 @@ export default class IRCServer implements IIRCServer {
 
     public async introduceToClient(client : IRCClient) {
         await Promise.all([
-            client.tell(client.reply.welcome().toString()),
-            client.tell(client.reply.yourHost(this.hostname, this.version).toString()),
-            client.tell(client.reply.created(this.created.toLocaleDateString()).toString()),
-            client.tell(client.reply.myInfo({
+            client.tell(client.reply.rplWelcome().toString()),
+            client.tell(client.reply.rplYourHost(this.hostname, this.version).toString()),
+            client.tell(client.reply.rplCreated(this.created.toLocaleDateString()).toString()),
+            client.tell(client.reply.rplMyInfo({
                 name: this.hostname,
                 version: this.version,
                 um: "ao",

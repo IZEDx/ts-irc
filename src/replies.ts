@@ -7,49 +7,70 @@ import IRCMessage from "./message";
 export default class ReplyGenerator {
     constructor(public server : IIRCServer, public client : IIRCClient) {}
 
-    public welcome = () => new IRCMessage({
+    public error = (msg : string) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "ERROR",
+        args: [],
+        msg: msg
+    });
+
+    public ping = () => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "PING",
+        args: [this.server.hostname, this.client.host],
+        msg: ""
+    });
+
+    public pong = () => new IRCMessage({
+        prefix: "",
+        command: "PONG",
+        args: [this.server.hostname, this.client.host],
+        msg: ""
+    });
+
+    public rplWelcome = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "001",
         args: [this.client.nick],
         msg: `Welcome to the Internet Relay Network ${this.client.identifier}`
     });
 
-    public yourHost = (name : string, version : string) => new IRCMessage({
+    public rplYourHost = (name : string, version : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "002",
         args: [this.client.nick],
         msg: `Your host is ${name}, running version ${version}`
     });
 
-    public created = (date : string) => new IRCMessage({
+    public rplCreated = (date : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "003",
         args: [this.client.nick],
         msg: `This server was created ${date}`
     });
 
-    public myInfo = (options : {name : string, version : string, um : string, cm : string}) => new IRCMessage({
+    public rplMyInfo = (options : {name : string, version : string, um : string, cm : string}) => new IRCMessage({
         prefix: this.server.hostname,
         command: "004",
         args: [this.client.nick],
         msg: `${options.name} ${options.version} ${options.um} ${options.cm}`
     });
 
-    public motdStart = () => new IRCMessage({
+    public rplMOTDStart = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "375",
         args: [this.client.nick],
         msg: "- " + this.server.hostname + " Message of the day - "
     });
 
-    public motd = (line : string) => new IRCMessage({
+    public rplMOTD = (line : string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "376",
         args: [this.client.nick],
         msg: "- " + line
     });
 
-    public endOfMotd = () => new IRCMessage({
+    public rplEndOfMotd = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "377",
         args: [this.client.nick],
@@ -103,19 +124,5 @@ export default class ReplyGenerator {
         command: "462",
         args: [this.client.nick],
         msg: "Unauthorized command (already registered)"
-    });
-
-    public ping = () => new IRCMessage({
-        prefix: this.server.hostname,
-        command: "PING",
-        args: [this.server.hostname, this.client.host],
-        msg: ""
-    });
-
-    public pong = () => new IRCMessage({
-        prefix: "",
-        command: "PONG",
-        args: [this.server.hostname, this.client.host],
-        msg: ""
     });
 }
