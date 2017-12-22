@@ -1,5 +1,8 @@
 {
-    "extends": "tslint-clean-code",
+    "rulesDirectory": [
+      "./node_modules/tslint-microsoft-contrib",
+      "./node_modules/tslint-clean-code/dist/src"
+    ],
     "rules": {
         "no-unused-variable": false,
         "no-console": false,
