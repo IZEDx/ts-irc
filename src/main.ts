@@ -17,7 +17,8 @@ async function main(args : Arguments) {
     const server  = new IRCServer(port, hostname());
 
     // Printing empty lines to clear the screen
-    const lines = (<any>process.stdout).getWindowSize()[1];
+    const windowSize : Function = (<any>process.stdout).getWindowSize;
+    const lines = typeof(windowSize) === "function" ? windowSize()[1] : 0;
     for (let i = 0; i < lines; i += 1) {
         console.log("\r\n");
     }
