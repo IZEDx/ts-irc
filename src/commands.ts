@@ -104,6 +104,24 @@ export class BasicCommands extends CommandLib {
     }
 
     @Command
+    public static async LUSERS(client : IRCClient, cmd : IRCMessage) {
+        if (!client.authed) {
+            return;
+        }
+
+        const total = client.server.clients.length;
+        const authed = client.server.clients.filter(x => x.authed).length;
+
+        return [
+            client.reply.rplLUserClient(authed, 0, 0),
+            client.reply.rplLUserOp(0),
+            client.reply.rplLUserUnknown(total - authed),
+            client.reply.rplLUserChannels(0),
+            client.reply.rplLUserMe(authed, 0)
+        ];
+    }
+
+    @Command
     public static async MOTD(client : IRCClient, cmd : IRCMessage) {
         if (!client.authed) {
             return;
@@ -121,13 +139,15 @@ export class BasicCommands extends CommandLib {
             return client.reply.errNoMOTD();
         }
 
-        client.tell(client.reply.rplMOTDStart().toString());
+        const replies = [client.reply.rplMOTDStart()];
 
         for (const line of motd.split("\n")) {
-            client.tell(client.reply.rplMOTD(line.trim()).toString());
+            replies.push(client.reply.rplMOTD(line.trim()));
         }
 
-        return client.reply.rplEndOfMotd();
+        replies.push(client.reply.rplEndOfMotd());
+
+        return replies;
     }
 
     @Command

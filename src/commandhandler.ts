@@ -1,11 +1,11 @@
 
-import {IActor, IParser, ICommandHandler, ICommandFunction} from "./interfaces";
+import {IActor, IParser, ICommandHandler} from "./interfaces";
 import IRCClient from "./client";
 import IRCMessage from "./message";
 import {log, getOrDefault} from "./utils";
 export {OperatorParser} from "./parser";
 
-export type CommandFunction = (sender : IActor, cmd : IRCMessage) => Promise<string | undefined>;
+export type CommandFunction = (sender : IActor, cmd : IRCMessage) => Promise<IRCMessage | IRCMessage[] | undefined>;
 
 /**
  * Global map of functions that can be imported in a CommandHandler
@@ -29,7 +29,7 @@ export class CommandLib {
     /**
      * Returns all methods with the the @registerCommand decorator
      */
-    get commands() : {[key : string] : ICommandFunction} {
+    get commands() : {[key : string] : CommandFunction} {
         return getOrDefault(commands, this.constructor.name.toLowerCase(), {});
     }
 }
@@ -56,7 +56,7 @@ export default class CommandHandler implements ICommandHandler {
      * @param {IRCClient} client Client to respond to.
      */
     public async tell(msg : string, client : IRCClient) {
-        let found : {fn : ICommandFunction, lib : CommandLib}|false = false;
+        let found : {fn : CommandFunction, lib : CommandLib}|false = false;
         const cmd : IRCMessage = new IRCMessage(this.parser.parse(msg));
 
         log.interaction(`${client.identifier} attempts to run ${cmd.command}.`);
@@ -74,10 +74,16 @@ export default class CommandHandler implements ICommandHandler {
             return;
         }
 
-        const result = await found.fn.bind(found.lib)(client, cmd);
+        const result : IRCMessage | IRCMessage[] | undefined = await found.fn.bind(found.lib)(client, cmd);
 
         if (result !== undefined) {
-            client.tell(result);
+            if (result instanceof IRCMessage) {
+                client.tell(result.toString());
+            } else {
+                for (const replies of result) {
+                    client.tell(replies.toString());
+                }
+            }
         }
     }
 

@@ -56,6 +56,41 @@ export default class ReplyGenerator {
         msg: `${options.name} ${options.version} ${options.um} ${options.cm}`
     });
 
+    public rplLUserClient = (clientCount : number, serviceCount : number, serverCount : number) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "251",
+        args: [this.client.nick],
+        msg: `There are ${clientCount} users and ${serviceCount} services on ${serverCount} servers`
+    });
+
+    public rplLUserOp = (count : number) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "252",
+        args: [this.client.nick, count.toString()],
+        msg: "operator(s) online"
+    });
+
+    public rplLUserUnknown = (count : number) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "253",
+        args: [this.client.nick, count.toString()],
+        msg: "unknown connection(s)"
+    });
+
+    public rplLUserChannels = (count : number) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "254",
+        args: [this.client.nick, count.toString()],
+        msg: "channels formed"
+    });
+
+    public rplLUserMe = (clientCount : number, serverCount : number) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "255",
+        args: [this.client.nick],
+        msg: "I have " + clientCount + " clients and " + serverCount + " servers"
+    });
+
     public rplMOTDStart = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "375",
