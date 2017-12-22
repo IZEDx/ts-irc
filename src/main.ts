@@ -29,4 +29,4 @@ async function main(args: Arguments) {
     log.main("Shutdown.");
 }
 
-main(parse(process.argv));
+main(parse(process.argv)); // Run the main function

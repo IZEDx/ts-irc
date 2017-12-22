@@ -32,7 +32,7 @@ export default class IRCServer implements IIRCServer {
         this.port = port;
         this.hostname = hostname;
         this.server = createServer();
-        this.server.on("connection", async socket => await this.onConnection(socket));
+        this.server.on("connection", socket => this.onConnection(socket));
         this.server.on("close", () => this.resolve());
         this.commandHandler = new CommandHandler(new BasicCommands());
         this.created = new Date();
