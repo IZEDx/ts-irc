@@ -117,7 +117,7 @@ export class BasicCommands extends CommandLib {
             client.reply.rplLUserOp(0),
             client.reply.rplLUserUnknown(total - authed),
             client.reply.rplLUserChannels(0),
-            client.reply.rplLUserMe(authed, 0)
+            client.reply.rplLUserMe(total, 0)
         ];
     }
 
