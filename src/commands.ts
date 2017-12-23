@@ -25,6 +25,7 @@ export class CoreCommands extends CommandLib {
  * Essential commands for login, logout, etc.
  */
 export class AccountCommands extends CommandLib {
+    
     @Command
     public static async NICK(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1) {
@@ -208,6 +209,7 @@ export class ChannelCommands extends CommandLib {
 
     @Command
     public static async JOIN(client: IRCClient, cmd: IRCMessage) {
-        
+        // TODO: implement
     }
+    
 }
