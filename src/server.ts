@@ -5,6 +5,7 @@ import CommandHandler from "./commandhandler";
 import {BasicCommands} from "./commands";
 import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
+import IRCChannel from "./channel";
 
 const pjson: {version: string} = (<any>require)("../package.json");
 
@@ -18,6 +19,7 @@ export default class IRCServer implements IIRCServer {
     public readonly server: Server;
     public readonly commandHandler: CommandHandler;
     public readonly clients: IRCClient[] = [];
+    public readonly channels: IRCChannel[] = [];
     public readonly hostname: string;
     public readonly created: Date;
 
@@ -44,7 +46,7 @@ export default class IRCServer implements IIRCServer {
      * @returns {Promise<void>} Promise that resolves when the client is disconnected
      */
     public async onConnection(socket: Socket) {
-        const client = new IRCClient(socket, this);
+        const client = new IRCClient(this, socket);
         this.clients.push(client);
 
         log.server(`New client connected from ${client.hostname}.`);

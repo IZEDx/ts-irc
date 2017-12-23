@@ -82,11 +82,12 @@ export type IReplyGenerator = any;
 
 // Server
 
-export interface IIRCServer<T extends IIRCClient = IIRCClient> {
+export interface IIRCServer<T extends IIRCClient = IIRCClient, K extends IIRCChannel = IIRCChannel> {
     port: number;
     server: Server;
     commandHandler: ICommandHandler;
     clients: T[];
+    channels: K[];
     hostname: string;
     created: Date;
     version: string;
@@ -95,4 +96,14 @@ export interface IIRCServer<T extends IIRCClient = IIRCClient> {
     getClients<K extends keyof T>(where: K, equals: T[K]): Promise<T[]>;
     broadcast(msg: string, clients?: T[]): Promise<void>;
     introduceToClient(client: T): Promise<void>;
+}
+
+// Channel
+
+export interface IIRCChannel extends IActor {
+    clients: IIRCClient[];
+    server: IIRCServer;
+    name: string;
+    topic: string;
+    addClient(client: IIRCClient): void;
 }
