@@ -2,7 +2,7 @@
 import {createServer, Socket, Server} from "net";
 import IRCClient from "./client";
 import CommandHandler from "./commandhandler";
-import {BasicCommands} from "./commands";
+import * as Commands from "./commands";
 import {log, nop} from "./utils";
 import {IIRCServer} from "./interfaces";
 import IRCChannel from "./channel";
@@ -36,7 +36,13 @@ export default class IRCServer implements IIRCServer {
         this.server = createServer();
         this.server.on("connection", socket => this.onConnection(socket));
         this.server.on("close", () => this.resolve());
-        this.commandHandler = new CommandHandler(new BasicCommands());
+        this.commandHandler = new CommandHandler(
+            new Commands.CoreCommands(),
+            new Commands.AccountCommands(),
+            new Commands.InfoCommands(),
+            new Commands.MessageCommands(),
+            new Commands.ChannelCommands()
+        );
         this.created = new Date();
     }
 

@@ -7,9 +7,24 @@ import {log, readFile} from "./utils";
 let motd: string;
 
 /**
- * Class containing some essential commands.
+ * Core functionality.
  */
-export class BasicCommands extends CommandLib {
+export class CoreCommands extends CommandLib {
+
+    @Command
+    public static async PING(client: IRCClient, cmd: IRCMessage) {
+        return client.reply.pong();
+    }
+
+    @Command
+    public static async PONG(client: IRCClient, cmd: IRCMessage) {}
+    
+}
+
+/**
+ * Essential commands for login, logout, etc.
+ */
+export class AccountCommands extends CommandLib {
     @Command
     public static async NICK(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1) {
@@ -70,6 +85,13 @@ export class BasicCommands extends CommandLib {
         client.shutdown();
     }
 
+}
+
+/**
+ * Actual messaging.
+ */
+export class MessageCommands extends CommandLib {
+
     @Command
     public static async PRIVMSG(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
@@ -102,6 +124,13 @@ export class BasicCommands extends CommandLib {
         }
 
     }
+
+}
+
+/**
+ * Information commands.
+ */
+export class InfoCommands extends CommandLib {
 
     @Command
     public static async LUSERS(client: IRCClient, cmd: IRCMessage) {
@@ -170,11 +199,15 @@ export class BasicCommands extends CommandLib {
         ]
     }
 
-    @Command
-    public static async PING(client: IRCClient, cmd: IRCMessage) {
-        return client.reply.pong();
-    }
+}
+
+/**
+ * Channel functionality.
+ */
+export class ChannelCommands extends CommandLib {
 
     @Command
-    public static async PONG(client: IRCClient, cmd: IRCMessage) {}
+    public static async JOIN(client: IRCClient, cmd: IRCMessage) {
+        
+    }
 }
