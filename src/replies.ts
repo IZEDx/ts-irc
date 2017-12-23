@@ -110,7 +110,7 @@ export default class ReplyGenerator implements IReplyGenerator {
         prefix: this.server.hostname,
         command: "318",
         args: [this.client.nick, user.nick],
-        msg: "End of WHOISlist"
+        msg: "End of WHOIS list"
     });
 
     public rplMOTDStart = () => new IRCMessage({
