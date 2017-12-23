@@ -1,5 +1,6 @@
 import {IIRCClient, IIRCServer, IReplyGenerator} from "./interfaces";
 import IRCMessage from "./message";
+import IRCClient from "./client";
 
 /**
  * Creates IRC Reply Messages
@@ -17,14 +18,14 @@ export default class ReplyGenerator implements IReplyGenerator {
     public ping = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "PING",
-        args: [this.server.hostname, this.client.host],
+        args: [this.server.hostname, this.client.hostname],
         msg: ""
     });
 
     public pong = () => new IRCMessage({
         prefix: "",
         command: "PONG",
-        args: [this.server.hostname, this.client.host],
+        args: [this.server.hostname, this.client.hostname],
         msg: ""
     });
 
@@ -89,6 +90,27 @@ export default class ReplyGenerator implements IReplyGenerator {
         command: "255",
         args: [this.client.nick],
         msg: "I have " + clientCount + " clients and " + serverCount + " servers"
+    });
+
+    public rplWhoisUser = (user: IRCClient) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "311",
+        args: [this.client.nick, user.nick, user.username, user.hostname, "*"],
+        msg: user.fullname
+    });
+
+    public rplWhoisServer = (user: IRCClient, info: string) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "312",
+        args: [this.client.nick, user.nick, this.server.hostname],
+        msg: info
+    });
+
+    public rplEndOfWhois = (user: IRCClient) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "318",
+        args: [this.client.nick, user.nick],
+        msg: "End of WHOISlist"
     });
 
     public rplMOTDStart = () => new IRCMessage({

@@ -59,6 +59,10 @@ export default class CommandHandler implements ICommandHandler {
 
         log.interaction(`${client.identifier} attempts to run ${cmd.command}.`);
 
+        if (cmd.prefix !== "") {
+            client.hostname = cmd.prefix;
+        }
+
         for (const lib of this.libs) {
             const fn = lib.commands[cmd.command];
             if (fn !== undefined) {

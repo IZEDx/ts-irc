@@ -44,7 +44,7 @@ export interface ITransciever extends IPipeable, IActor {
 
 export interface IIRCClient extends ITransciever {
     nick: string;
-    host: string;
+    hostname: string;
     server: IIRCServer;
     reply: IReplyGenerator;
     identifier: string;

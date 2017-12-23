@@ -26,7 +26,7 @@ export class BasicCommands extends CommandLib {
         if (client.authed) {
             log.interaction(`${client.identifier} changed nick from "${oldnick}" to "${newnick}".`);
         } else {
-            log.interaction(`${client.host} set their nick to ${newnick}.`);
+            log.interaction(`${client.hostname} set their nick to ${newnick}.`);
         }
 
         client.nick = newnick;
@@ -66,7 +66,7 @@ export class BasicCommands extends CommandLib {
             cmd.msg = "Client Quit";
         }
         log.interaction(`${client.identifier} quit with reason: ${cmd.msg}.`);
-        client.tell(client.reply.error(`Closing Link: ${client.host} (${cmd.msg})`).toString());
+        client.tell(client.reply.error(`Closing Link: ${client.hostname} (${cmd.msg})`).toString());
         client.shutdown();
     }
 
@@ -148,6 +148,26 @@ export class BasicCommands extends CommandLib {
         replies.push(client.reply.rplEndOfMotd());
 
         return replies;
+    }
+
+    @Command
+    public static async WHOIS(client: IRCClient, cmd: IRCMessage) {
+        if (cmd.args.length < 1 || !client.authed) {
+            return;
+        }
+
+        const targets: IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
+        const target: IRCClient = targets[0];
+
+        if (target === undefined) {
+            return client.reply.errNoSuchNick(cmd.args[0]);
+        }
+
+        return [
+            client.reply.rplWhoisUser(target),
+            client.reply.rplWhoisServer(target, "Server info."),
+            client.reply.rplEndOfWhois(target)
+        ]
     }
 
     @Command
