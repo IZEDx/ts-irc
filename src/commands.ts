@@ -159,7 +159,7 @@ export class InfoCommands extends CommandLib {
                 return;
             }
 
-            motdLines = motdLines || (await readFile("./motd.txt"))
+            motdLines = motdLines !== undefined ? motdLines : (await readFile("./motd.txt"))
                 .toString()
                 .split("\n")
                 .map(line => line.trim());

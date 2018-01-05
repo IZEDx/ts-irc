@@ -36,8 +36,8 @@ export class IRCServer implements IIRCServer {
         this.port = port;
         this.hostname = hostname;
         this.server = createServer();
-        this.server.on("connection", socket => this.onConnection(socket));
-        this.server.on("close", () => this.resolve());
+        this.server.on("connection", this.onConnection.bind(this));
+        this.server.on("close", this.resolve.bind(this));
         this.commandHandler = new CommandHandler(
             new Commands.CoreCommands(),
             new Commands.AccountCommands(),
@@ -110,7 +110,7 @@ export class IRCServer implements IIRCServer {
      * @param {IRCClient[]|void} clients Optional list of clients to broadcast to
      */
     public async broadcast(msg: string, clients?: IRCClient[]) {
-        if (!clients) {
+        if (clients === undefined) {
             clients = this.clients.filter(client => client.authed);
         }
 

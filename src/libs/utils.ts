@@ -22,6 +22,11 @@ export namespace time {
  * Logging utilities
  */
 export namespace log {
+    /**
+     * Logs stuff using a given prefix.
+     * @param {string} prefix The prefix to prepend.
+     * @param {string[]} msg The actual message.
+     */
     function logPrefix(prefix: string, ...msg: string[]) {
         console.log(prefix + "\t" + chalk.gray(time.local()) + "\t", ...msg);
     }
@@ -39,7 +44,7 @@ export namespace log {
 export function readFile(path: string | Buffer): Promise<Buffer> {
     return new Promise<Buffer>((resolve, reject) => {
         readFileCallback(path, (err, data) => {
-            if (!err) {
+            if (err === undefined) {
                 resolve(data);
             } else {
                 reject(err);
@@ -65,6 +70,10 @@ export function getOrDefault<V>(m: {[key: string]: V}, key: string, def: V): V {
     return v;
 }
 
+/**
+ * Checks whether a given object can be considered a Console to output to and read its dimensions.
+ * @param object The object to check.
+ */
 export function isConsole(object: any): object is IConsole {
     return typeof object === "object" &&  typeof object.columns === "number" && typeof object.rows === "number";
 }

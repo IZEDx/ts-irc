@@ -34,7 +34,7 @@ export class IRCClient extends Transciever implements IIRCClient {
     constructor(server: IRCServer, socket: Socket) {
         super(socket);
         this.server = server;
-        this.hostname = socket.remoteAddress || "unknown";
+        this.hostname = socket.remoteAddress !== undefined ? socket.remoteAddress : "unknown";
         this.reply = new ReplyGenerator(this.server, this);
 
         if (/^:(ffff)?:(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(this.hostname)) {

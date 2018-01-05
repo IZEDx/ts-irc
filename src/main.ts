@@ -24,7 +24,7 @@ async function main(args: Arguments) {
         }
     }
 
-    log.main("Starting IRC Server on port " + port);
+    log.main("Starting IRC Server on port " + port.toString());
 
     await server.start(); // Starting the server and waiting for it to finish
 

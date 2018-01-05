@@ -3,6 +3,9 @@ import {IIRCMessage} from "./interfaces";
 
 export {IIRCMessage};
 
+/**
+ * A simple IRC Message including prefix, command, args and messagebody.
+ */
 export class IRCMessage implements IIRCMessage {
     public prefix: string;
     public command: string;

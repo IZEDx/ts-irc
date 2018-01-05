@@ -89,7 +89,7 @@ export class ReplyGenerator {
         prefix: this.server.hostname,
         command: "255",
         args: [this.client.nick],
-        msg: "I have " + clientCount + " clients and " + serverCount + " servers"
+        msg: `I have ${clientCount} clients and ${serverCount} servers`
     })
 
     public rplWhoisUser = (user: IIRCClient) => new IRCMessage({
