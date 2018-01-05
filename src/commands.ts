@@ -1,10 +1,11 @@
 
-import IRCClient from "./client";
-import IRCMessage from "./message";
-import {registerCommand as Command, CommandLib} from "./commandhandler";
-import {log, readFile} from "./utils";
+import {CommandLib, registerCommand as Command} from "./libs/commandhandler";
+import {IRCMessage} from "./libs/message";
+import {log, readFile} from "./libs/utils";
 
-let motd: string;
+import {IRCClient} from "./client";
+
+let motdLines: string[];
 
 /**
  * Core functionality.
@@ -17,15 +18,15 @@ export class CoreCommands extends CommandLib {
     }
 
     @Command
-    public static async PONG(client: IRCClient, cmd: IRCMessage) {}
-    
+    public static async PONG(client: IRCClient, cmd: IRCMessage) { }
+
 }
 
 /**
  * Essential commands for login, logout, etc.
  */
 export class AccountCommands extends CommandLib {
-    
+
     @Command
     public static async NICK(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1) {
@@ -47,7 +48,7 @@ export class AccountCommands extends CommandLib {
 
         client.nick = newnick;
 
-        if (client.authed && oldnick === undefined) {
+        if (client.authed && oldnick === "*") {
             log.interaction(`${client.identifier} identified themself.`);
             client.server.introduceToClient(client);
         }
@@ -55,7 +56,7 @@ export class AccountCommands extends CommandLib {
 
     @Command
     public static async USER(client: IRCClient, cmd: IRCMessage) {
-        if (cmd.args.length < 1 || cmd.msg === "") {
+        if (cmd.args.length < 1) {
             return client.reply.errNeedMoreParams("user");
         }
 
@@ -82,8 +83,8 @@ export class AccountCommands extends CommandLib {
             cmd.msg = "Client Quit";
         }
         log.interaction(`${client.identifier} quit with reason: ${cmd.msg}.`);
-        client.tell(client.reply.error(`Closing Link: ${client.hostname} (${cmd.msg})`).toString());
-        client.shutdown();
+        client.next(client.reply.error(`Closing Link: ${client.hostname} (${cmd.msg})`).toString());
+        client.complete();
     }
 
 }
@@ -99,7 +100,7 @@ export class MessageCommands extends CommandLib {
             return;
         }
 
-        const targets: IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
+        const targets: IRCClient[] = await client.server.getClients("nick", cmd.args[0]);
         const target: IRCClient = targets[0];
 
         if (targets.length === 0) {
@@ -107,7 +108,7 @@ export class MessageCommands extends CommandLib {
         }
 
         log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
-        target.tell(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
+        client.next(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
     }
 
     @Command
@@ -116,12 +117,12 @@ export class MessageCommands extends CommandLib {
             return;
         }
 
-        const targets: IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
+        const targets: IRCClient[] = await client.server.getClients("nick", cmd.args[0]);
         const target: IRCClient = targets[0];
 
         if (targets.length > 0) {
             log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
-            target.tell(`:${client.identifier} NOTICE ${target.nick} :${cmd.msg}`);
+            client.next(`:${client.identifier} NOTICE ${target.nick} :${cmd.msg}`);
         }
 
     }
@@ -153,31 +154,27 @@ export class InfoCommands extends CommandLib {
 
     @Command
     public static async MOTD(client: IRCClient, cmd: IRCMessage) {
-        if (!client.authed) {
-            return;
-        }
-
-        if (motd === undefined) {
-            try {
-                motd = (await readFile("./motd.txt")).toString();
-            } catch (err) {
-                motd = "";
+        try {
+            if (!client.authed) {
+                return;
             }
-        }
 
-        if (motd === "") {
+            motdLines = motdLines || (await readFile("./motd.txt"))
+                .toString()
+                .split("\n")
+                .map(line => line.trim());
+            const replies = [client.reply.rplMOTDStart()];
+
+            for (const line of motdLines) {
+                replies.push(client.reply.rplMOTD(line));
+            }
+
+            replies.push(client.reply.rplEndOfMotd());
+
+            return replies;
+        } catch (err) {
             return client.reply.errNoMOTD();
         }
-
-        const replies = [client.reply.rplMOTDStart()];
-
-        for (const line of motd.split("\n")) {
-            replies.push(client.reply.rplMOTD(line.trim()));
-        }
-
-        replies.push(client.reply.rplEndOfMotd());
-
-        return replies;
     }
 
     @Command
@@ -186,7 +183,7 @@ export class InfoCommands extends CommandLib {
             return;
         }
 
-        const targets: IRCClient[] = <any[]> await client.server.getClients("nick", cmd.args[0]);
+        const targets: IRCClient[] = await client.server.getClients("nick", cmd.args[0]);
         const target: IRCClient = targets[0];
 
         if (target === undefined) {
@@ -197,7 +194,7 @@ export class InfoCommands extends CommandLib {
             client.reply.rplWhoisUser(target),
             client.reply.rplWhoisServer(target, "Server info."),
             client.reply.rplEndOfWhois(target)
-        ]
+        ];
     }
 
 }
@@ -209,7 +206,6 @@ export class ChannelCommands extends CommandLib {
 
     @Command
     public static async JOIN(client: IRCClient, cmd: IRCMessage) {
-        // TODO: implement
     }
-    
+
 }

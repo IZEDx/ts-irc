@@ -1,6 +1,9 @@
+
 import {IIRCMessage} from "./interfaces";
 
-export default class IRCMessage implements IIRCMessage {
+export {IIRCMessage};
+
+export class IRCMessage implements IIRCMessage {
     public prefix: string;
     public command: string;
     public args: string[];

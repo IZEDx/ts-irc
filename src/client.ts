@@ -1,41 +1,30 @@
-import Transciever from "./transciever";
+
+import {AsyncOperators as aops, Observable} from "./libs/async";
+import {IIRCClient, IIRCServer} from "./libs/interfaces";
+import {IRCMessage} from "./libs/message";
+import {Transciever} from "./libs/transciever";
+
 import {Socket} from "net";
-import {IIRCServer , IIRCClient} from "./interfaces";
-import ReplyGenerator from "./replies";
+import {ReplyGenerator} from "./replies";
+
+export {IIRCClient, ReplyGenerator, IRCMessage};
 
 type IRCServer = IIRCServer<IRCClient>;
 
 /**
  * IRC Client
  */
-export default class IRCClient extends Transciever implements IIRCClient {
-    public nick: string = "*";
-    private _username: string;
-    private _fullname: string;
+export class IRCClient extends Transciever implements IIRCClient {
+
+    public fullname: string = "*";
     public hostname: string;
+
     public readonly server: IRCServer;
     public readonly reply: ReplyGenerator;
 
-    /**
-     * Returns an identifier for this user
-     */
-    get identifier() {
-        if (this.authed) {
-            return this.nick + "!" + this._username + "@" + this.hostname;
-        } else {
-            return this.hostname;
-        }
-    }
-
-    /**
-     * Returns true when the user has both, his nick and username set
-     */
-    get authed(): boolean {
-        return this._username !== undefined;
-    }
-
-    get username()  { return this._username;    }
-    get fullname()  { return this._fullname;    }
+    private _nick: string = "*";
+    private _username: string = "*";
+    private _authed: boolean = false;
 
     /**
      *
@@ -54,19 +43,28 @@ export default class IRCClient extends Transciever implements IIRCClient {
     }
 
     /**
-     * Sets the username of this client. Can be done once
+     * Sends an IRCMessage to this user
      */
-    set username(name: string) {
-        if (this._username) { return; }
-        this._username = name;
+    public send(msg: IRCMessage) {
+        this.next(msg.toString());
     }
 
     /**
-     * Sets the fullname of this client. Can be done once
+     * Returns an identifier for this user
      */
-    set fullname(name: string) {
-        if (this._fullname) { return; }
-        this._fullname = name;
+    get identifier(): string {
+        if (this.authed) {
+            return `${this._nick}!${this._username}@${this.hostname}`;
+        } else {
+            return this.hostname;
+        }
+    }
+
+    /**
+     * Returns true if this user has been authenticated
+     */
+    get authed(): boolean {
+        return this._authed;
     }
 
     /**
@@ -74,7 +72,51 @@ export default class IRCClient extends Transciever implements IIRCClient {
      * @param msg Message to be sent
      * @return {Promise<void>}
      */
-    public async tell(msg: string) {
-        super.tell(msg.trim() + "\r\n");
+    public async next(msg: string) {
+        super.next(msg.trim() + "\r\n");
+    }
+
+    /**
+     * Sets the username of this client. Can be done once
+     */
+    set username(name: string) {
+        if (this._authed) {
+            return;
+        }
+
+        this._username = name;
+
+        if (this._nick !== "*") {
+            this._authed = true;
+        }
+    }
+
+    /**
+     * Gets the username of this user
+     */
+    get username(): string {
+        return this._username;
+    }
+
+    /**
+     * Sets the nickname of this user
+     */
+    set nick(nick: string) {
+        this._nick = nick;
+
+        if (this._username !== "*") {
+            this._authed = true;
+        }
+    }
+
+    /**
+     * Gets the nickname of this user
+     */
+    get nick(): string {
+        return this._nick;
+    }
+
+    public observe(): Observable<string> {
+        return new Observable(aops.buffer(super.observe(), "\r\n")).filter(async msg => msg.trim().length > 0);
     }
 }

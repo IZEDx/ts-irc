@@ -1,4 +1,8 @@
-import {IParser, IIRCMessage} from "./interfaces";
+
+import {IParser} from "./interfaces";
+import {IRCMessage} from "./message";
+
+export {IParser};
 
 /**
  * Parses IRC Commands using string and array operations.
@@ -7,13 +11,13 @@ export class OperatorParser implements IParser {
     constructor() {
     }
 
-    public parse(msg: string): IIRCMessage {
-        const result: IIRCMessage = {
+    public parse(msg: string): IRCMessage {
+        const result: IRCMessage = new IRCMessage({
             prefix: "",
             command: "",
             args: [],
             msg: ""
-        };
+        });
         const segments = msg.split(":");
 
         // Got empty message
@@ -38,7 +42,7 @@ export class OperatorParser implements IParser {
 
         // Get message content
         if (segments.length >= 1) {
-            result.msg = segments.join(":");
+            result.msg = segments.join(":").trim();
         }
 
         // Trim args and remove empty ones (multiple whitespaces)

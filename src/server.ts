@@ -1,29 +1,31 @@
 
-import {createServer, Socket, Server} from "net";
-import IRCClient from "./client";
-import CommandHandler from "./commandhandler";
-import * as Commands from "./commands";
-import {log, nop} from "./utils";
-import {IIRCServer} from "./interfaces";
-import IRCChannel from "./channel";
+import {CommandHandler} from "./libs/commandhandler";
+import {IIRCServer, IParser} from "./libs/interfaces";
+import {OperatorParser} from "./libs/parser";
+import {log, nop} from "./libs/utils";
 
-const pjson: {version: string} = (<any>require)("../package.json");
+import {createServer, Server, Socket} from "net";
+import {IRCChannel} from "./channel";
+import {IRCClient} from "./client";
+import * as Commands from "./commands";
+
+const pjson: {version: string} = (require as Function)("../package.json");
 
 /**
  * IRC Server
  */
-export default class IRCServer implements IIRCServer {
-    private resolve: () => void = nop;
-
+export class IRCServer implements IIRCServer {
     public readonly port: number;
     public readonly server: Server;
     public readonly commandHandler: CommandHandler;
+    public readonly parser: IParser;
     public readonly clients: IRCClient[] = [];
     public readonly channels: IRCChannel[] = [];
     public readonly hostname: string;
     public readonly created: Date;
-
     public readonly version: string = pjson.version;
+
+    private resolve: () => void = nop;
 
     /**
      * Creates a new IRC Server instance
@@ -44,6 +46,7 @@ export default class IRCServer implements IIRCServer {
             new Commands.ChannelCommands()
         );
         this.created = new Date();
+        this.parser = new OperatorParser();
     }
 
     /**
@@ -57,7 +60,24 @@ export default class IRCServer implements IIRCServer {
 
         log.server(`New client connected from ${client.hostname}.`);
 
-        await client.pipe(this.commandHandler, client);
+        /*
+        for await(const msg of client) {
+            const cmd = this.parser.parse(msg.trim());
+            const response = await this.commandHandler.handle(cmd, client);
+
+            if (response.trim().length > 0) {
+                client.next(response);
+            }
+        }
+        */
+
+        // TODO: Doesn't work correctly, clean up architecture even better.
+
+        await client.observe()
+            .map(async msg => this.parser.parse(msg.trim()))
+            .handle(this.commandHandler, client)
+            .filter(async response => response.trim().length > 0)
+            .pipe(client);
 
         log.server(`${client.identifier} disconnected.`);
 
@@ -68,8 +88,9 @@ export default class IRCServer implements IIRCServer {
      * Starts the server
      * @returns {Promise<void>} Promise that resolves when it"s done
      */
-    public async listen() {
+    public async start() {
         this.server.listen(this.port);
+
         return new Promise<void>((resolve, reject) => this.resolve = resolve);
     }
 
@@ -96,7 +117,7 @@ export default class IRCServer implements IIRCServer {
         const promises: Promise<void>[] = [];
 
         for (const client of clients) {
-            promises.push(client.tell(msg));
+            promises.push(client.next(msg));
         }
 
         await Promise.all(promises);
@@ -104,10 +125,10 @@ export default class IRCServer implements IIRCServer {
 
     public async introduceToClient(client: IRCClient) {
         await Promise.all([
-            client.tell(client.reply.rplWelcome().toString()),
-            client.tell(client.reply.rplYourHost(this.hostname, this.version).toString()),
-            client.tell(client.reply.rplCreated(this.created.toLocaleDateString()).toString()),
-            client.tell(client.reply.rplMyInfo({
+            client.next(client.reply.rplWelcome().toString()),
+            client.next(client.reply.rplYourHost(this.hostname, this.version).toString()),
+            client.next(client.reply.rplCreated(this.created.toLocaleDateString()).toString()),
+            client.next(client.reply.rplMyInfo({
                 name: this.hostname,
                 version: this.version,
                 um: "ao",
