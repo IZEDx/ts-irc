@@ -12,7 +12,8 @@
     "start": "node dist/main.js",
     "lint": "./node_modules/.bin/tslint --project . -t codeFrame --force",
     "lint-fix": "npm run lint -- --fix",
-    "test": "./node_modules/.bin/mocha -r ts-node/register tests/*.ts"
+    "test": "./node_modules/.bin/mocha -r ts-node/register tests/*.ts",
+    "chirc-test": "python3 -m pytest chirc-tests/ --chirc-exe=./ts-irc.js --randomize-ports --json=chirc-tests/report.json --html=chirc-tests/report.html"
   },
   "repository": {
     "type": "git",

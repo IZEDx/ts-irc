@@ -3,3 +3,7 @@ node_modules/
 .idea/
 npm-debug.log
 ts-node-*/
+.cache/
+alltests
+chirc-tests/report.*
+chirc-tests/__pycache__/
