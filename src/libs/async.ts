@@ -51,46 +51,6 @@ export namespace AsyncGenerators {
     }
 
     /**
-     * Creates an async iterable that increments a counter and yields it every given milliseconds.
-     * @param {number} ms The interval in ms.
-     */
-    export function interval(ms: number): AsyncIterable<number> {
-        return {
-            [Symbol.asyncIterator]() {
-                let waitingNext: null | ((data: IteratorResult<number>) => void) = null;
-                const queue: IteratorResult<number>[] = [];
-                let i = 0;
-
-                setInterval(
-                    () => {
-                        if (waitingNext === null) {
-                            queue.push({value: i, done: false});
-                        } else {
-                            waitingNext({value: i, done: false});
-                            waitingNext = null;
-                        }
-                        i += 1;
-                    },
-                    ms
-                );
-
-                return {
-                    next(): Promise<IteratorResult<number>> {
-                        return new Promise<IteratorResult<number>>((resolve, reject) => {
-                            if (queue.length === 0) {
-                                return waitingNext = resolve;
-                            }
-
-                            resolve(queue[0]);
-                            queue.splice(0, 1);
-                        });
-                    }
-                };
-            }
-        };
-    }
-
-    /**
      * Creates an async iterable.
      * @param creator Callback to create the iterable.
      */
@@ -275,7 +235,16 @@ export class Observable<T> {
     }
 
     public static interval(ms: number): Observable<number> {
-        return new Observable(AsyncGenerators.interval(ms));
+        return new Observable(AsyncGenerators.create(observer => {
+            let i = 0;
+            setInterval(
+                () => {
+                    observer.next(i);
+                    i += 1;
+                },
+                ms
+            );
+        }));
     }
 
     public static for(from: number, to?: number, step?: number): Observable<number> {
