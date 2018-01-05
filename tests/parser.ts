@@ -1,18 +1,23 @@
 
-import { OperatorParser } from "../src/parser";
-import { IIRCMessage, IParser } from "../src/interfaces";
+import { IIRCMessage, IParser } from "../src/libs/interfaces";
+import { OperatorParser } from "../src/libs/parser";
+
 import { expect } from "chai";
 
-type MessageExpectation = {description: string, message: string, result: IIRCMessage};
+interface IMessageExpectation {
+    description: string;
+    message: string;
+    result: IIRCMessage;
+}
 
-const emptyResult : IIRCMessage = {
+const emptyResult: IIRCMessage = {
     prefix: "",
     command: "",
     args: [],
     msg: ""
 };
 
-const expectedMessages : MessageExpectation[] = [
+const expectedMessages: IMessageExpectation[] = [
 
     { description: "should return empty result", message: "", result: emptyResult },
     { description: "should return empty result", message: "  ", result: emptyResult },
@@ -80,7 +85,7 @@ const expectedMessages : MessageExpectation[] = [
 
 ];
 
-let parser : IParser;
+let parser: IParser;
 
 describe("OperatorParser", () => {
 

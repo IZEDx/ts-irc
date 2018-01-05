@@ -46,5 +46,3 @@ export enum Replies {
     ERR_UMODEUNKNOWNFLAG = "501",
     ERR_USERSDONTMATCH = "502"
 }
-
-export default Replies;

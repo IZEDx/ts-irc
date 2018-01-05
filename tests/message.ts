@@ -1,4 +1,6 @@
-import IRCMessage from "../src/message";
+
+import { IRCMessage } from "../src/libs/message";
+
 import { expect } from "chai";
 
 describe("IRCMessage", () => {

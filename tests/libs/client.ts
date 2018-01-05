@@ -1,49 +1,20 @@
-import {connect, Socket} from "net";
-import IRCMessage from "../../src/message";
-import {OperatorParser} from "../../src/parser";
+import { connect, Socket } from "net";
+import { IRCMessage } from "../../src/libs/message";
+import { OperatorParser } from "../../src/libs/parser";
 
-export default class TestClient {
-    private requests : {resolve : Function, reject : Function}[] = [];
-    private parser : OperatorParser = new OperatorParser();
+export class TestClient {
 
-    public socket : Socket;
-    public host : string;
-    public port : number;
-    public connected : boolean = false;
+    public socket: Socket;
+    public host: string;
+    public port: number;
+    public connected: boolean = false;
 
-    public onReply = (cmd : IRCMessage) => { };
+    private requests: {resolve: Function, reject: Function}[] = [];
+    private parser: OperatorParser = new OperatorParser();
 
     private constructor() { }
 
-    public request(msg : string) : Promise<IRCMessage> {
-        return new Promise<IRCMessage>((resolve, reject) => {
-            this.send(msg, () => {
-                this.requests.push({resolve, reject});
-            });
-        });
-    }
-
-    public send(msg : string, cb? : Function) {
-        this.socket.write(msg.trim() + "\r\n", cb);
-    }
-
-    public disconnect() {
-        if ( this.connected ) {
-            this.socket.end();
-            this.socket.destroy();
-            this.connected = false;
-        }
-    }
-
-    public onData(msg : string) {
-        const cmd = this.parser.parse(msg);
-
-        if (/^\d\d\d$/.test(cmd.command)) {
-            this.onReply(cmd);
-        }
-    }
-
-    public static CREATE(host : string = "localhost", port : number = 7776) : Promise<TestClient> {
+    public static CREATE(host: string = "localhost", port: number = 7776): Promise<TestClient> {
         const client = new TestClient();
         client.host = host;
         client.port = port;
@@ -61,5 +32,35 @@ export default class TestClient {
                 }
             });
         });
+    }
+
+    public onReply = (cmd: IRCMessage) => { };
+
+    public request(msg: string): Promise<IRCMessage> {
+        return new Promise<IRCMessage>((resolve, reject) => {
+            this.send(msg, () => {
+                this.requests.push({resolve, reject});
+            });
+        });
+    }
+
+    public send(msg: string, cb?: Function) {
+        this.socket.write(msg.trim() + "\r\n", cb);
+    }
+
+    public disconnect() {
+        if ( this.connected ) {
+            this.socket.end();
+            this.socket.destroy();
+            this.connected = false;
+        }
+    }
+
+    public onData(msg: string) {
+        const cmd = this.parser.parse(msg);
+
+        if (/^\d\d\d$/.test(cmd.command)) {
+            this.onReply(cmd);
+        }
     }
 }
