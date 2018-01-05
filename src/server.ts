@@ -60,19 +60,6 @@ export class IRCServer implements IIRCServer {
 
         log.server(`New client connected from ${client.hostname}.`);
 
-        /*
-        for await(const msg of client) {
-            const cmd = this.parser.parse(msg.trim());
-            const response = await this.commandHandler.handle(cmd, client);
-
-            if (response.trim().length > 0) {
-                client.next(response);
-            }
-        }
-        */
-
-        // TODO: Doesn't work correctly, clean up architecture even better.
-
         await client.observe()
             .map(async msg => this.parser.parse(msg.trim()))
             .handle(this.commandHandler, client)
