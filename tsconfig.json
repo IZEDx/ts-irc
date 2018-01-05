@@ -14,6 +14,7 @@
         "noUnusedLocals": true,
         "suppressImplicitAnyIndexErrors": true,
         "lib": [
+            "dom",
             "es2017",
             "esnext.asynciterable"
         ],

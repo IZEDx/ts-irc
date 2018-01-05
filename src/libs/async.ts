@@ -52,7 +52,7 @@ export namespace AsyncGenerators {
 
     /**
      * Creates an async iterable.
-     * @param creator Callback to create the iterable.
+     * @param {(observer: IObserver<T>) => void} creator Callback to create the iterable.
      */
     export function create<T>(creator: (observer: IObserver<T>) => void): AsyncIterable<T> {
         return {
@@ -215,6 +215,7 @@ export namespace AsyncOperators {
  * Using this it's possible to create an asynchronous operator chain.
  *
  * eg.
+ * ```
  *  const myObservable = Observable.for(0, 100, 10).map(i => i += 5);
  *
  *  myObservable.subscribe({next: console.log});
@@ -222,6 +223,7 @@ export namespace AsyncOperators {
  *  for await(const i of myObservable) {
  *      console.log(i);
  *  }
+ * ```
  */
 export class Observable<T> {
     public [Symbol.asyncIterator]: () => AsyncIterator<T>;

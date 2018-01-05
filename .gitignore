@@ -7,3 +7,4 @@ ts-node-*/
 alltests
 chirc-tests/report.*
 chirc-tests/__pycache__/
+docs/
