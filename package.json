@@ -9,7 +9,7 @@
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "watch": "npm run build -- --watch",
-    "start": "node dist/main.js",
+    "start": "node ts-irc.js",
     "lint": "./node_modules/.bin/tslint --project . -t codeFrame --force",
     "lint-fix": "npm run lint -- --fix",
     "test": "./node_modules/.bin/mocha -r ts-node/register tests/*.ts",

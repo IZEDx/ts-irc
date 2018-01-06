@@ -9,7 +9,7 @@ import {IRCChannel} from "./channel";
 import {IRCClient} from "./client";
 import * as Commands from "./commands";
 
-const pjson: {version: string} = (require as Function)("../package.json");
+const packagejson: {version: string} = (require as Function)("../package.json");
 
 /**
  * IRC Server
@@ -23,7 +23,7 @@ export class IRCServer implements IIRCServer {
     public readonly channels: IRCChannel[] = [];
     public readonly hostname: string;
     public readonly created: Date;
-    public readonly version: string = pjson.version;
+    public readonly version: string = packagejson.version;
 
     private resolve: () => void = nop;
 
@@ -33,11 +33,11 @@ export class IRCServer implements IIRCServer {
      * @param {string|void} hostname Hostname to run the server on
      */
     constructor(port: number, hostname: string = "localhost") {
-        this.port = port;
-        this.hostname = hostname;
-        this.server = createServer();
-        this.server.on("connection", this.onConnection.bind(this));
-        this.server.on("close", this.resolve.bind(this));
+        this.port       = port;
+        this.hostname   = hostname;
+        this.server     = createServer();
+        this.created    = new Date();
+        this.parser     = new OperatorParser();
         this.commandHandler = new CommandHandler(
             new Commands.CoreCommands(),
             new Commands.AccountCommands(),
@@ -45,8 +45,9 @@ export class IRCServer implements IIRCServer {
             new Commands.MessageCommands(),
             new Commands.ChannelCommands()
         );
-        this.created = new Date();
-        this.parser = new OperatorParser();
+
+        this.server.on("connection", this.onConnection.bind(this));
+        this.server.on("close", this.resolve.bind(this));
     }
 
     /**
@@ -110,6 +111,10 @@ export class IRCServer implements IIRCServer {
         await Promise.all(promises);
     }
 
+    /**
+     * Introduces this server to a client.
+     * @param {IRClient} client Client to introduce to.
+     */
     public async introduceToClient(client: IRCClient) {
         await Promise.all([
             client.next(client.reply.rplWelcome().toString()),

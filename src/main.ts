@@ -3,17 +3,13 @@ import {isConsole, log} from "./libs/utils";
 import {IRCServer} from "./server";
 
 import {hostname} from "os";
-import {alias, Arguments, default as define, describe, parse} from "yargs";
-
-alias   ("p", "port");
-define  ("p", 6667);
-describe("p", "Port to listen on.");
+import {Arguments} from "yargs";
 
 /**
  * Main function
  * @param {string[]} arg Process arguments, including the first two "npm start"
  */
-async function main(args: Arguments) {
+export async function main(args: Arguments) {
     const port    = parseInt(args.port, 10);
     const server  = new IRCServer(port, hostname());
 
@@ -31,4 +27,4 @@ async function main(args: Arguments) {
     log.main("Shutdown.");
 }
 
-main(parse(process.argv)); // Run the main function
+export * from "./server";
