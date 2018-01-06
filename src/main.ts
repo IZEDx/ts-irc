@@ -7,7 +7,7 @@ import {Arguments} from "yargs";
 
 /**
  * Main function
- * @param {string[]} arg Process arguments, including the first two "npm start"
+ * @param {Arguments} arg Process arguments, including the first two "npm start"
  */
 export async function main(args: Arguments) {
     const port    = parseInt(args.port, 10);
