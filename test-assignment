@@ -1,0 +1,31 @@
+
+case "$1" in
+1)
+    npm run chirc-test -- -C BASIC CONNECTION
+    ;;
+2)
+    npm run chirc-test -- -C CONNECTION_REGISTRATION
+    npm run chirc-test -- -C PRIVMSG_NOTICE
+    npm run chirc-test -- -C PING_PONG
+    npm run chirc-test -- -C MOTD
+    npm run chirc-test -- -C LUSERS
+    npm run chirc-test -- -C WHOIS
+    npm run chirc-test -- -C ERR_UNKNOWN
+    npm run chirc-test -- -C ROBUST
+    ;;
+3)
+    npm run chirc-test -- -C CHANNEL_JOIN
+    npm run chirc-test -- -C CHANNEL_PRIVMSG_NOTICE
+    npm run chirc-test -- -C CHANNEL_PART
+    npm run chirc-test -- -C CHANNEL_TOPIC
+    npm run chirc-test -- -C MODES
+    npm run chirc-test -- -C AWAY
+    npm run chirc-test -- -C NAMES
+    npm run chirc-test -- -C LIST
+    npm run chirc-test -- -C WHO
+    npm run chirc-test -- -C UPDATE_ASSIGNMENT2
+    ;;
+*)
+    echo $"Usage: ./$0 {1|2|3}"
+    exit 1
+esac
