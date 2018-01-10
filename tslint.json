@@ -5,6 +5,7 @@
   "rules": {
     "no-eval": true,
 
+    "export-name": false,
     "await-promise": false,
     "forin": true,
     "id-length": false,
@@ -31,6 +32,7 @@
     "no-invalid-this": true,
     "no-map-without-usage": false,
     "no-misused-new": true,
+    "no-missing-visibility-modifiers": false,
     "no-non-null-assertion": true,
     "no-reference-import": true,
     "no-sparse-arrays": true,
@@ -78,6 +80,7 @@
     "no-null-keyword": false,
     "no-parameter-properties": false,
     "no-require-imports": true,
+    "no-reserved-keywords": false,
     "no-shadowed-variable": true,
     "no-unnecessary-qualifier": true,
     "no-var-keyword": true,
