@@ -1,5 +1,5 @@
 
-import {IHandler, IIRCClient} from "./interfaces";
+import {IHandler, IIRCClient, IIRCServer} from "./interfaces";
 import {IRCMessage} from "./message";
 import {getOrDefault, log} from "./utils";
 
@@ -9,29 +9,38 @@ import {getOrDefault, log} from "./utils";
 export type FCommandFunction = (sender: IIRCClient, cmd: IRCMessage) => Promise<IRCMessage | IRCMessage[] | undefined>;
 
 /**
- * Global map of functions that can be imported in a CommandHandler
- */
-const commands: {[key: string]: {[key: string]: FCommandFunction}} = {};
-
-/**
- * Decorator that registers a method as a command to be run. Will not be called with a proper this value.
- * @param {Function} target Method to be registered.
- * @param {string} propertyKey Key of the method.
- * @param {PropertyDescriptor} descriptor Descriptor
- */
-export function registerCommand(target: Function, propertyKey: string, descriptor: PropertyDescriptor) {
-    getOrDefault(commands, target.name.toLowerCase(), {})[propertyKey.toLowerCase()] = target[propertyKey];
-}
-
-/**
  * A class extending this can add commands to the CommandHandler.
  */
-export class CommandLib {
+export class CommandLib<T extends IIRCClient = IIRCClient> {
+    private _server: IIRCServer<T>;
+    private _commands: {[key: string]: FCommandFunction};
+
     /**
      * Returns all methods with the the @registerCommand decorator.
      */
     get commands(): {[key: string]: FCommandFunction} {
-        return getOrDefault(commands, this.constructor.name.toLowerCase(), {});
+        if (this._commands === undefined) {
+            const names = Object.getOwnPropertyNames(this.constructor.prototype)
+                .filter(name => name !== "constructor");
+
+            this._commands = {};
+
+            for (const name of names) {
+                this._commands[name.toLowerCase()] = this.constructor.prototype[name];
+            }
+        }
+
+        return this._commands;
+    }
+
+    set server(value: IIRCServer<T>) {
+        if (this._server === undefined) {
+            this._server = value;
+        }
+    }
+
+    get server(): IIRCServer<T> {
+        return this._server;
     }
 }
 
@@ -45,8 +54,11 @@ export class CommandHandler implements IHandler<IRCMessage, string> {
      * Creates a new CommandHandler.
      * @param {CommandLib[]} libs Libraries of commands to use.
      */
-    constructor(...libs: CommandLib[]) {
+    constructor(server: IIRCServer, ...libs: CommandLib[]) {
         this.libs = libs;
+        for (const lib of this.libs) {
+            lib.server = server;
+        }
     }
 
     /**

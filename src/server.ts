@@ -40,6 +40,7 @@ export class IRCServer implements IIRCServer {
         this.created    = new Date();
         this.parser     = new OperatorParser();
         this.commandHandler = new CommandHandler(
+            this,
             new Commands.CoreCommands(),
             new Commands.AccountCommands(),
             new Commands.InfoCommands(),

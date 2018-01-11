@@ -1,5 +1,5 @@
 
-import {CommandLib, registerCommand as Command} from "./libs/commandhandler";
+import {commandLib, CommandLib, registerCommand as Command} from "./libs/commandhandler";
 import {IRCMessage} from "./libs/message";
 import {log, readFile} from "./libs/utils";
 
@@ -10,25 +10,22 @@ let motdLines: string[];
 /**
  * Core functionality.
  */
-export class CoreCommands extends CommandLib {
+export class CoreCommands extends CommandLib<IRCClient> {
 
-    @Command
-    public static async PING(client: IRCClient, cmd: IRCMessage) {
+    public async ping(client: IRCClient, cmd: IRCMessage) {
         return client.reply.pong();
     }
 
-    @Command
-    public static async PONG(client: IRCClient, cmd: IRCMessage) { }
+    public async pong(client: IRCClient, cmd: IRCMessage) { }
 
 }
 
 /**
  * Essential commands for login, logout, etc.
  */
-export class AccountCommands extends CommandLib {
+export class AccountCommands extends CommandLib<IRCClient> {
 
-    @Command
-    public static async NICK(client: IRCClient, cmd: IRCMessage) {
+    public async nick(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1) {
             return client.reply.errNoNicknameGiven();
         }
@@ -36,7 +33,7 @@ export class AccountCommands extends CommandLib {
         const oldnick = client.nick;
         const newnick = cmd.args[0];
 
-        if ((await client.server.getClients("nick", newnick)).length > 0) {
+        if ((await this.server.getClients("nick", newnick)).length > 0) {
             return client.reply.errNicknameInUse(newnick);
         }
 
@@ -50,12 +47,11 @@ export class AccountCommands extends CommandLib {
 
         if (client.authed && oldnick === "*") {
             log.interaction(`${client.identifier} identified themself.`);
-            client.server.introduceToClient(client);
+            this.server.introduceToClient(client);
         }
     }
 
-    @Command
-    public static async USER(client: IRCClient, cmd: IRCMessage) {
+    public async user(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1) {
             return client.reply.errNeedMoreParams("user");
         }
@@ -64,7 +60,7 @@ export class AccountCommands extends CommandLib {
             return client.reply.errAlreadyRegistred();
         }
 
-        if ((await client.server.getClients("username", cmd.args[0])).length > 0) {
+        if ((await this.server.getClients("username", cmd.args[0])).length > 0) {
             return;
         }
 
@@ -73,12 +69,11 @@ export class AccountCommands extends CommandLib {
 
         if (client.authed) {
             log.interaction(`${client.identifier} identified themself.`);
-            client.server.introduceToClient(client);
+            this.server.introduceToClient(client);
         }
     }
 
-    @Command
-    public static async QUIT(client: IRCClient, cmd: IRCMessage) {
+    public async quit(client: IRCClient, cmd: IRCMessage) {
         if (cmd.msg === "") {
             cmd.msg = "Client Quit";
         }
@@ -92,10 +87,9 @@ export class AccountCommands extends CommandLib {
 /**
  * Actual messaging.
  */
-export class MessageCommands extends CommandLib {
+export class MessageCommands extends CommandLib<IRCClient> {
 
-    @Command
-    public static async PRIVMSG(client: IRCClient, cmd: IRCMessage) {
+    public async privmsg(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
         }
@@ -108,11 +102,10 @@ export class MessageCommands extends CommandLib {
         }
 
         log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
-        client.next(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
+        target.next(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
     }
 
-    @Command
-    public static async NOTICE(client: IRCClient, cmd: IRCMessage) {
+    public async notice(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 2 || !client.authed) {
             return;
         }
@@ -122,7 +115,7 @@ export class MessageCommands extends CommandLib {
 
         if (targets.length > 0) {
             log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
-            client.next(`:${client.identifier} NOTICE ${target.nick} :${cmd.msg}`);
+            target.next(`:${client.identifier} NOTICE ${target.nick} :${cmd.msg}`);
         }
 
     }
@@ -132,16 +125,15 @@ export class MessageCommands extends CommandLib {
 /**
  * Information commands.
  */
-export class InfoCommands extends CommandLib {
+export class InfoCommands extends CommandLib<IRCClient> {
 
-    @Command
-    public static async LUSERS(client: IRCClient, cmd: IRCMessage) {
+    public async lusers(client: IRCClient, cmd: IRCMessage) {
         if (!client.authed) {
             return;
         }
 
-        const total = client.server.clients.length;
-        const authed = client.server.clients.filter(x => x.authed).length;
+        const total = this.server.clients.length;
+        const authed = this.server.clients.filter(x => x.authed).length;
 
         return [
             client.reply.rplLUserClient(authed, 0, 0),
@@ -152,8 +144,7 @@ export class InfoCommands extends CommandLib {
         ];
     }
 
-    @Command
-    public static async MOTD(client: IRCClient, cmd: IRCMessage) {
+    public async motd(client: IRCClient, cmd: IRCMessage) {
         try {
             if (!client.authed) {
                 return;
@@ -177,8 +168,7 @@ export class InfoCommands extends CommandLib {
         }
     }
 
-    @Command
-    public static async WHOIS(client: IRCClient, cmd: IRCMessage) {
+    public async whois(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1 || !client.authed) {
             return;
         }
@@ -202,10 +192,9 @@ export class InfoCommands extends CommandLib {
 /**
  * Channel functionality.
  */
-export class ChannelCommands extends CommandLib {
+export class ChannelCommands extends CommandLib<IRCClient> {
 
-    @Command
-    public static async JOIN(client: IRCClient, cmd: IRCMessage) {
+    public async join(client: IRCClient, cmd: IRCMessage) {
     }
 
 }
