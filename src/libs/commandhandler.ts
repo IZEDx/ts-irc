@@ -1,7 +1,7 @@
 
 import {IHandler, IIRCClient, IIRCServer} from "./interfaces";
 import {IRCMessage} from "./message";
-import {getOrDefault, log} from "./utils";
+import {log} from "./utils";
 
 /**
  * CommandFunction

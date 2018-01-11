@@ -1,5 +1,5 @@
 
-import {commandLib, CommandLib, registerCommand as Command} from "./libs/commandhandler";
+import {CommandLib} from "./libs/commandhandler";
 import {IRCMessage} from "./libs/message";
 import {log, readFile} from "./libs/utils";
 
