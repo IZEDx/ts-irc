@@ -65,8 +65,8 @@ export class IRCServer implements IIRCServer {
 
         for await(const msg of client.observe()) {
             const cmd: IRCMessage = this.parser.parse(msg.trim());
-            const response: string = await this.commandHandler.handle(cmd, client);
-            if (response.trim().length > 0) {
+            const response: string|undefined = await this.commandHandler.handle(cmd, client);
+            if (response !== undefined) {
                 client.next(response);
             }
         }

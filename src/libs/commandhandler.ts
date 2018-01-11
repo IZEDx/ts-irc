@@ -47,7 +47,7 @@ export class CommandLib<T extends IIRCClient = IIRCClient> {
 /**
  * Handles all the commands.
  */
-export class CommandHandler implements IHandler<IRCMessage, string, IIRCClient> {
+export class CommandHandler implements IHandler<IRCMessage, string|undefined, IIRCClient> {
     public readonly libs: CommandLib[];
 
     /**
@@ -66,8 +66,7 @@ export class CommandHandler implements IHandler<IRCMessage, string, IIRCClient> 
      * @param {string} msg Message containing command.
      * @param {IRCClient} client Client to respond to.
      */
-    public async handle(value: IRCMessage, client: IIRCClient): Promise<string> {
-        let found: {fn: FCommandFunction, lib: CommandLib}|false = false;
+    public async handle(value: IRCMessage, client: IIRCClient): Promise<string|undefined> {
 
         log.interaction(`${client.identifier} sent: ${value.toString().trim()}`);
 
@@ -75,15 +74,11 @@ export class CommandHandler implements IHandler<IRCMessage, string, IIRCClient> 
             client.hostname = value.prefix;
         }
 
-        for (const lib of this.libs) {
-            const fn = lib.commands[value.command];
-            if (fn !== undefined) {
-                found = {fn, lib};
-                break;
-            }
-        }
+        const found = this.libs
+            .map( (v): {lib: CommandLib, fn: FCommandFunction} => ({ lib: v, fn: v.commands[value.command] }) )
+            .find( v => v.fn !== undefined );
 
-        if (!found) {
+        if (found === undefined) {
             return client.reply.errUnknownCommand(value.command).toString();
         }
 
@@ -95,6 +90,6 @@ export class CommandHandler implements IHandler<IRCMessage, string, IIRCClient> 
             return result.map(v => v.toString()).join("\r\n") + "\r\n";
         }
 
-        return "";
+        return;
     }
 }
