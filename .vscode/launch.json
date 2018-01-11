@@ -5,11 +5,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/dist/main.js",
-            "preLaunchTask": "npm: build",
-            "outFiles": [
-                "${workspaceFolder}/dist/**/*.js"
-            ]
+            "program": "${workspaceFolder}/ts-irc.js",
         }
     ]
 }

@@ -95,6 +95,8 @@
     "prefer-for-of": true,
     "prefer-method-signature": true,
     "prefer-template": false,
+    "prefer-type-cast": false, 
+    "promise-must-complete": false,
     "return-undefined": false,
     "typedef": [true,
       "parameter",
