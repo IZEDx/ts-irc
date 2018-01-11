@@ -8,6 +8,7 @@
     "export-name": false,
     "await-promise": false,
     "forin": true,
+    "function-name": false,
     "id-length": false,
     "label-position": true,
     "match-default-export-name": true,
