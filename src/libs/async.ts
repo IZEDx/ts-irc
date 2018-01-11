@@ -22,8 +22,8 @@ export interface IObserver<T> {
 /**
  * A Handler is an Observer that handles a value for a client.
  */
-export interface IHandler<T, K> {
-    handle(value: T, client: IObserver<K>): Promise<K>;
+export interface IHandler<T, K, I> {
+    handle(value: T, client: I): Promise<K>;
     error?(error: Error): Promise<void>;
     complete?(): Promise<void>;
 }
@@ -44,8 +44,8 @@ export namespace AsyncGenerators {
      * @param {number} to Endnumber
      * @param {number} step Stepsize
      */
-    export async function* forLoop(from: number, to?: number, step?: number): IAsyncIterable<number> {
-        for (let i = from; to === undefined || i < to; i += (step !== undefined ? step : 1)) {
+    export async function* range(from: number, to: number, step: number = 1): IAsyncIterable<number> {
+        for (let i = from; i < to; i += step) {
             yield i;
         }
     }
@@ -113,9 +113,10 @@ export namespace AsyncOperators {
      * @param {(value: T) => Promise<K>} fn Mapping function
      * @return {IAsyncIterable<K>} Output
      */
-    export async function* map<T, K>(input: IAsyncIterable<T>, fn: (value: T) => Promise<K>): IAsyncIterable<K> {
+    export async function* map<T, K>(input: IAsyncIterable<T>, fn: (value: T) => Promise<K>|K): IAsyncIterable<K> {
         for await(const data of input) {
-            yield await fn(data);
+            const mapped = fn(data);
+            yield mapped instanceof Promise ? await mapped : mapped;
         }
     }
 
@@ -127,8 +128,8 @@ export namespace AsyncOperators {
      */
     export async function* split(input: IAsyncIterable<string>, seperator: string): IAsyncIterable<string> {
         for await(const data of input) {
-            for (const msg of data.split(seperator)) {
-                yield msg;
+            for (const part of data.split(seperator)) {
+                yield part;
             }
         }
     }
@@ -160,9 +161,10 @@ export namespace AsyncOperators {
      * @param {(value: T) => Promise<boolean>} fn Predicate
      * @return {IAsyncIterable<T>} Output
      */
-    export async function* filter<T>(input: IAsyncIterable<T>, fn: (value: T) => Promise<boolean>): IAsyncIterable<T> {
+    export async function* filter<T>(input: IAsyncIterable<T>, fn: (value: T) => Promise<boolean>|boolean): IAsyncIterable<T> {
         for await(const data of input) {
-            if (await fn(data)) {
+            const check = fn(data);
+            if (check instanceof Promise ? await check : check) {
                 yield data;
             }
         }
@@ -174,9 +176,14 @@ export namespace AsyncOperators {
      * @param {(value: T) => Promise<void>} fn Function
      * @return {IAsyncIterable<T>} Output
      */
-    export async function* forEach<T>(input: IAsyncIterable<T>, fn: (value: T) => Promise<void>): IAsyncIterable<T> {
+    export async function* forEach<T>(input: IAsyncIterable<T>, fn: (value: T) => Promise<void>|void): IAsyncIterable<T> {
         for await(const data of input) {
-            await fn(data);
+            const run = fn(data);
+            if (run instanceof Promise) {
+                await fn(data);
+            } else {
+                fn(data);
+            }
             yield data;
         }
     }
@@ -202,7 +209,11 @@ export namespace AsyncOperators {
      * @param {IObserver<K>} client The client the handler is handling for
      * @return {IAsyncIterable<K>} Output
      */
-    export async function* handle<T, K = T>(input: IAsyncIterable<T>, handler: IHandler<T, K>, client: IObserver<K>): IAsyncIterable<K> {
+    export async function* handle<T, K = T, I = IObserver<K>>(
+        input: IAsyncIterable<T>,
+        handler: IHandler<T, K, I>,
+        client: I
+    ): IAsyncIterable<K> {
         for await(const value of input) {
             yield await handler.handle(value, client);
         }
@@ -249,8 +260,8 @@ export class Observable<T> {
         }));
     }
 
-    public static for(from: number, to?: number, step?: number): Observable<number> {
-        return new Observable(AsyncGenerators.forLoop(from, to, step));
+    public static range(from: number, to: number, step: number = 1): Observable<number> {
+        return new Observable(AsyncGenerators.range(from, to, step));
     }
 
     public static listen<T>(stream: NodeJS.ReadableStream): Observable<T> {
@@ -261,7 +272,11 @@ export class Observable<T> {
         }));
     }
 
-    public do(fn: (value: T) => Promise<void>): Observable<T> {
+    public checkValid(): Observable<T> {
+        return this.filter(async v => v !== undefined && v !== null);
+    }
+
+    public do(fn: (value: T) => Promise<void>|void): Observable<T> {
         return this.forEach(fn);
     }
 
@@ -269,7 +284,7 @@ export class Observable<T> {
         return this.subscribe(consumer);
     }
 
-    public forEach(fn: (value: T) => Promise<void>): Observable<T> {
+    public forEach(fn: (value: T) => Promise<void>|void): Observable<T> {
         return new Observable(AsyncOperators.forEach(this, fn));
     }
 
@@ -289,19 +304,20 @@ export class Observable<T> {
         }
     }
 
-    public map<K>(fn: (value: T) => Promise<K>): Observable<K> {
-        return new Observable(AsyncOperators.map(this, fn));
+    public filter(fn: (value: T) => Promise<boolean>|boolean): Observable<T> {
+        return new Observable(AsyncOperators.filter(this, fn));
     }
 
-    public filter(fn: (value: T) => Promise<boolean>): Observable<T> {
-        return new Observable(AsyncOperators.filter(this, fn));
+    public map<K>(fn: (value: T) => Promise<K>|K): Observable<K> {
+        return new Observable(AsyncOperators.map(this, fn));
     }
 
     public flatMap<K>(fn: (value: T) => Observable<K>): Observable<K> {
         return new Observable(AsyncOperators.flatMap(this, fn));
     }
 
-    public handle<K>(handler: IHandler<T, K>, client: IObserver<K>): Observable<K> {
+    public handle<K, I = IObserver<K>>(handler: IHandler<T, K, I>, client: I): Observable<K> {
         return new Observable(AsyncOperators.handle(this, handler, client));
     }
+
 }

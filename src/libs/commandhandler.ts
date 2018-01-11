@@ -47,7 +47,7 @@ export class CommandLib<T extends IIRCClient = IIRCClient> {
 /**
  * Handles all the commands.
  */
-export class CommandHandler implements IHandler<IRCMessage, string> {
+export class CommandHandler implements IHandler<IRCMessage, string, IIRCClient> {
     public readonly libs: CommandLib[];
 
     /**
