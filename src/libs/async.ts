@@ -14,18 +14,18 @@ export type ISubject<T, K> = IObserver<T> & {
  * after which its functions will be called by the Observable.
  */
 export interface IObserver<T> {
-    next(value: T): Promise<void>;
-    error?(error: Error): Promise<void>;
-    complete?(): Promise<void>;
+    next(value: T): Promise<void>|void;
+    error?(error: Error): Promise<void>|void;
+    complete?(): Promise<void>|void;
 }
 
 /**
  * A Handler is an Observer that handles a value for a client.
  */
 export interface IHandler<T, K, I> {
-    handle(value: T, client: I): Promise<K>;
-    error?(error: Error): Promise<void>;
-    complete?(): Promise<void>;
+    handle(value: T, client: I): Promise<K>|K;
+    error?(error: Error): Promise<void>|void;
+    complete?(): Promise<void>|void;
 }
 
 /**
@@ -37,6 +37,15 @@ export type AsyncOperator<T, K = T> = (input: IAsyncIterable<T>, ...args: any[])
  * Collection of asynchronous generator functions.
  */
 export namespace AsyncGenerators {
+
+    /**
+     * Creates an async iterable that emits the given arguments and awaits them in case they're promises.
+     */
+    export async function* of<T>(...values: (T|Promise<T>)[]): IAsyncIterable<T> {
+        for (const v of values) {
+            yield (v instanceof Promise) ? await v : v;
+        }
+    }
 
     /**
      * Creates an async iterable that acts like a for-loop.
@@ -62,7 +71,7 @@ export namespace AsyncGenerators {
                 const queue: IteratorResult<T>[] = [];
 
                 creator({
-                    async next(value: T) {
+                    next(value: T) {
                         if (waitingNext === null) {
                             queue.push({value, done: false});
                         } else {
@@ -71,7 +80,7 @@ export namespace AsyncGenerators {
                         }
                     },
                     // Any hack because TypeScript doesn't like IteratorResults with undefined values.
-                    async complete() {
+                    complete() {
                         if (waitingNext === null) {
                             queue.push({value: undefined, done: true} as any);
                         } else {
@@ -79,7 +88,7 @@ export namespace AsyncGenerators {
                             waitingNext = null;
                         }
                     },
-                    async error(err: Error) {
+                    error(err: Error) {
                         if (waitingError !== undefined) {
                             waitingError(err);
                         }
@@ -243,6 +252,10 @@ export class Observable<T> {
         Object.assign(this, ai);
     }
 
+    public static of<T>(...values: (T|Promise<T>)[]): Observable<T> {
+        return new Observable(AsyncGenerators.of(...values));
+    }
+
     public static create<T>(creator: (observer: IObserver<T>) => void): Observable<T> {
         return new Observable(AsyncGenerators.create(creator));
     }
@@ -273,7 +286,7 @@ export class Observable<T> {
     }
 
     public checkValid(): Observable<T> {
-        return this.filter(async v => v !== undefined && v !== null);
+        return this.filter(v => v !== undefined && v !== null);
     }
 
     public do(fn: (value: T) => Promise<void>|void): Observable<T> {
@@ -291,16 +304,25 @@ export class Observable<T> {
     public async subscribe(consumer: IObserver<T>): Promise<void> {
         try {
             for await(const data of this) {
-                consumer.next(data);
+                const r = consumer.next(data);
+                if (r instanceof Promise) {
+                    await r;
+                }
             }
         } catch (e) {
             if (consumer.error !== undefined) {
-                consumer.error(e);
+                const r = consumer.error(e);
+                if (r instanceof Promise) {
+                    await r;
+                }
             }
         }
 
         if (consumer.complete !== undefined) {
-            consumer.complete();
+            const r = consumer.complete();
+            if (r instanceof Promise) {
+                await r;
+            }
         }
     }
 
