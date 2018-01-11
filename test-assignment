@@ -26,6 +26,6 @@ case "$1" in
     npm run chirc-test -- -C UPDATE_ASSIGNMENT2
     ;;
 *)
-    echo $"Usage: ./$0 {1|2|3}"
+    echo $"Usage: $0 {1|2|3}"
     exit 1
 esac
