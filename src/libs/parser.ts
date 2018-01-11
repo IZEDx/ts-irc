@@ -48,6 +48,7 @@ export class OperatorParser implements IParser {
         // Trim args and remove empty ones (multiple whitespaces)
         result.args = result.args.map(x => x.trim()).filter(x => x.length > 0);
 
+        // Extract Command
         if (result.args.length > 0) {
             result.command = result.args[0].toLowerCase();
             result.args.splice(0, 1);
