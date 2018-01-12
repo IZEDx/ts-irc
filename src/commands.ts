@@ -90,11 +90,11 @@ export class AccountCommands extends CommandLib<IRCClient> {
 export class MessageCommands extends CommandLib<IRCClient> {
 
     public async privmsg(client: IRCClient, cmd: IRCMessage) {
-        if (cmd.args.length < 2 || !client.authed) {
+        if (cmd.args.length < 1 || cmd.msg.trim().length === 0 || !client.authed) {
             return;
         }
 
-        const targets: IRCClient[] = await client.server.getClients("nick", cmd.args[0]);
+        const targets: IRCClient[] = await this.server.getClients("nick", cmd.args[0]);
         const target: IRCClient = targets[0];
 
         if (targets.length === 0) {
@@ -110,7 +110,7 @@ export class MessageCommands extends CommandLib<IRCClient> {
             return;
         }
 
-        const targets: IRCClient[] = await client.server.getClients("nick", cmd.args[0]);
+        const targets: IRCClient[] = await this.server.getClients("nick", cmd.args[0]);
         const target: IRCClient = targets[0];
 
         if (targets.length > 0) {

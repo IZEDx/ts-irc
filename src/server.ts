@@ -8,7 +8,6 @@ import {createServer, Server, Socket} from "net";
 import {IRCChannel} from "./channel";
 import {IRCClient} from "./client";
 import * as Commands from "./commands";
-import { IRCMessage } from "./libs/message";
 
 const packagejson: {version: string} = (require as Function)("../package.json");
 
@@ -63,6 +62,7 @@ export class IRCServer implements IIRCServer {
 
         log.server(`New client connected from ${client.hostname}.`);
 
+/*
         for await(const msg of client.observe()) {
             const cmd: IRCMessage = this.parser.parse(msg.trim());
             const response: string|undefined = await this.commandHandler.handle(cmd, client);
@@ -70,13 +70,15 @@ export class IRCServer implements IIRCServer {
                 client.next(response);
             }
         }
-/*
-        await client.observe()
-            .map(async msg => this.parser.parse(msg.trim()))
-            .handle(this.commandHandler, client)
-            .filter(async response => response.trim().length > 0)
-            .pipe(client);
 */
+
+        await client.observe()
+            //.buffer("\n")
+            .map(msg => this.parser.parse(msg.trim()))
+            .handle(this.commandHandler, client)
+            .checkValid()
+            .pipe(client);
+
         log.server(`${client.identifier} disconnected.`);
 
         this.clients.splice(this.clients.indexOf(client), 1);
