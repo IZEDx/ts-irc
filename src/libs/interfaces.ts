@@ -48,7 +48,7 @@ export interface IParser {
 export interface IIRCServer<T extends IIRCClient = IIRCClient, K extends IIRCChannel = IIRCChannel> {
     port: number;
     server: Server;
-    commandHandler: IHandler<IIRCMessage, string, T>;
+    commandHandler: IHandler<IIRCMessage, string|undefined, T>;
     clients: T[];
     channels: K[];
     hostname: string;
