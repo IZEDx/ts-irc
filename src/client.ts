@@ -37,8 +37,8 @@ export class IRCClient extends Transciever implements IIRCClient {
         this.hostname = socket.remoteAddress !== undefined ? socket.remoteAddress : "unknown";
         this.reply = new ReplyGenerator(this.server, this);
 
-        if (/^:(ffff)?:(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/.test(this.hostname)) {
-            this.hostname.replace(/^.*:/, "");
+        while (this.hostname.includes(":")) {
+            this.hostname = this.hostname.replace(/^.*:/, "");
         }
     }
 
