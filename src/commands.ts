@@ -3,7 +3,9 @@ import {CommandLib} from "./libs/commandhandler";
 import {IRCMessage} from "./libs/message";
 import {log, readFile} from "./libs/utils";
 
+import {IRCChannel} from "./channel";
 import {IRCClient} from "./client";
+import { IObserver } from "./libs/async";
 
 let motdLines: string[];
 
@@ -48,12 +50,18 @@ export class AccountCommands extends CommandLib<IRCClient> {
         if (client.authed && oldnick === "*") {
             log.interaction(`${client.identifier} identified themself.`);
             this.server.introduceToClient(client);
+        } else {
+            for (const channel of this.server.channels) {
+                if (channel.clients.find(c => c === client) !== undefined) {
+                    channel.next(cmd.toString());
+                }
+            }
         }
     }
 
     public async user(client: IRCClient, cmd: IRCMessage) {
         if (cmd.args.length < 1) {
-            return client.reply.errNeedMoreParams("user");
+            return client.reply.errNeedMoreParams("USER");
         }
 
         if (client.authed) {
@@ -80,6 +88,14 @@ export class AccountCommands extends CommandLib<IRCClient> {
         log.interaction(`${client.identifier} quit with reason: ${cmd.msg}.`);
         client.next(client.reply.error(`Closing Link: ${client.hostname} (${cmd.msg})`).toString());
         client.complete();
+
+        for (const channel of this.server.channels) {
+            const idx = channel.clients.indexOf(client);
+            if (idx >= 0) {
+                channel.next(cmd.toString());
+                channel.clients.splice(idx);
+            }
+        }
     }
 
 }
@@ -94,15 +110,25 @@ export class MessageCommands extends CommandLib<IRCClient> {
             return;
         }
 
-        const targets: IRCClient[] = await this.server.getClients("nick", cmd.args[0]);
-        const target: IRCClient = targets[0];
+        const name = cmd.args[0].toLowerCase();
+        let target: IObserver<string>|undefined = this.server.clients.find(c => c.nick.toLowerCase() === name);
 
-        if (targets.length === 0) {
-            return client.reply.errNoSuchNick(cmd.args[0]);
+        if (target === undefined) {
+            const channel = this.server.channels.find(c => c.name === name.substr(1));
+
+            if (channel === undefined) {
+                return client.reply.errNoSuchNick(name);
+            }
+
+            if ( channel.clients.find(c => c === client) === undefined ) {
+                return client.reply.errCannotSendToChan(channel);
+            }
+
+            target = channel;
         }
 
-        log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
-        target.next(`:${client.identifier} PRIVMSG ${target.nick} :${cmd.msg}`);
+        log.interaction(`${client.nick} > ${name}\t${cmd.msg}`);
+        target.next(`:${client.identifier} PRIVMSG ${name} :${cmd.msg}`);
     }
 
     public async notice(client: IRCClient, cmd: IRCMessage) {
@@ -110,12 +136,21 @@ export class MessageCommands extends CommandLib<IRCClient> {
             return;
         }
 
-        const targets: IRCClient[] = await this.server.getClients("nick", cmd.args[0]);
-        const target: IRCClient = targets[0];
+        const name = cmd.args[0].toLowerCase();
+        let target: IObserver<string>|undefined = this.server.clients.find(c => c.nick.toLowerCase() === name);
 
-        if (targets.length > 0) {
-            log.interaction(`${client.nick} > ${target.nick}\t${cmd.msg}`);
-            target.next(`:${client.identifier} NOTICE ${target.nick} :${cmd.msg}`);
+        if (target === undefined) {
+            const channel = this.server.channels.find(c => c.name === name.substr(1));
+
+            if (channel !== undefined && channel.clients.find(c => c === client) === undefined) {
+                target = channel;
+            }
+
+        }
+
+        if (target !== undefined) {
+            log.interaction(`${client.nick} > ${name}\t${cmd.msg}`);
+            target.next(`:${client.identifier} NOTICE ${name} :${cmd.msg}`);
         }
 
     }
@@ -195,6 +230,86 @@ export class InfoCommands extends CommandLib<IRCClient> {
 export class ChannelCommands extends CommandLib<IRCClient> {
 
     public async join(client: IRCClient, cmd: IRCMessage) {
+        if (!client.authed) {
+            return;
+        }
+        if (cmd.args.length < 1) {
+            return client.reply.errNeedMoreParams("JOIN");
+        }
+
+        let channel = this.server.channels.find(v => v.name === cmd.args[0].toLowerCase().substr(1));
+        if (channel === undefined) {
+            channel = new IRCChannel(this.server, cmd.args[0].toLowerCase().substr(1));
+            this.server.channels.push(channel);
+        }
+
+        channel.addClient(client);
+
+        const replies: IRCMessage[] = [
+            client.reply.join(channel.name)
+        ];
+
+        if (channel.topic !== undefined && channel.topic !== "") {
+            replies.push(client.reply.rplTopic(channel));
+        }
+
+        if (channel.clients.length > 0) {
+            replies.push(client.reply.rplNameReply(channel));
+        }
+
+        replies.push(client.reply.rplEndOfNames(channel));
+
+        return replies;
     }
 
+    public async part(client: IRCClient, cmd: IRCMessage) {
+        if (!client.authed) {
+            return;
+        }
+        if (cmd.args.length < 1) {
+            return client.reply.errNeedMoreParams("PART");
+        }
+
+        const channel = this.server.channels.find(v => v.name === cmd.args[0].toLowerCase().substr(1));
+        if (channel === undefined) {
+            return client.reply.errNoSuchChannel(cmd.args[0]);
+        }
+
+        const idx = channel.clients.indexOf(client);
+        if (idx < 0) {
+            return client.reply.errNotOnChannel(channel);
+        }
+
+        channel.clients.splice(idx);
+
+        if (channel.clients.length === 0) {
+            this.server.channels.splice(this.server.channels.indexOf(channel));
+        }
+    }
+
+    public async topic(client: IRCClient, cmd: IRCMessage) {
+        if (!client.authed) {
+            return;
+        }
+        if (cmd.args.length < 1) {
+            return client.reply.errNeedMoreParams("TOPIC");
+        }
+
+        const channel = this.server.channels.find(v => v.name === cmd.args[0].toLowerCase().substr(1));
+        if (channel === undefined) {
+            return;
+        }
+
+        if (channel.clients.find(c => c === client) === undefined) {
+            return client.reply.errNotOnChannel(channel);
+        }
+
+        if (cmd.msg === undefined || cmd.msg === "") {
+            return client.reply.rplNoTopic(channel);
+        } else {
+            channel.topic = cmd.msg;
+
+            return client.reply.rplTopic(channel);
+        }
+    }
 }

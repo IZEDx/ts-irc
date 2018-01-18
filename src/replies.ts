@@ -1,5 +1,5 @@
 
-import {IIRCClient, IIRCServer} from "./libs/interfaces";
+import {IIRCClient, IIRCServer, IIRCChannel} from "./libs/interfaces";
 import {IRCMessage} from "./libs/message";
 
 /**
@@ -26,6 +26,13 @@ export class ReplyGenerator {
         prefix: "",
         command: "PONG",
         args: [this.server.hostname, this.client.hostname],
+        msg: ""
+    })
+
+    public join = (channel: string) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "JOIN",
+        args: [channel],
         msg: ""
     })
 
@@ -113,6 +120,34 @@ export class ReplyGenerator {
         msg: "End of WHOIS list"
     })
 
+    public rplNoTopic = (channel: IIRCChannel) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "331",
+        args: [this.client.nick, channel.name],
+        msg: "No topic is set"
+    })
+
+    public rplTopic = (channel: IIRCChannel) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "332",
+        args: [this.client.nick, channel.name],
+        msg: channel.topic || ""
+    })
+
+    public rplNameReply = (channel: IIRCChannel) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "353",
+        args: [this.client.nick, "=", channel.name],
+        msg: channel.clients.map(c => c.nick).join(" ")
+    })
+
+    public rplEndOfNames = (channel: IIRCChannel) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "366",
+        args: [this.client.nick, channel.name],
+        msg: "End of NAMES list"
+    })
+
     public rplMOTDStart = () => new IRCMessage({
         prefix: this.server.hostname,
         command: "375",
@@ -141,6 +176,20 @@ export class ReplyGenerator {
         msg: "No such nick/channel"
     })
 
+    public errNoSuchChannel = (channelname: string) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "403",
+        args: [this.client.nick, channelname],
+        msg: "No such channel"
+    })
+
+    public errCannotSendToChan = (channel: IIRCChannel) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "404",
+        args: [this.client.nick, channel.name],
+        msg: "Cannot send to channel"
+    })
+
     public errUnknownCommand = (command: string) => new IRCMessage({
         prefix: this.server.hostname,
         command: "421",
@@ -167,6 +216,13 @@ export class ReplyGenerator {
         command: "433",
         args: [this.client.nick, nick],
         msg: "Nickname is already in use"
+    })
+
+    public errNotOnChannel = (channel: IIRCChannel) => new IRCMessage({
+        prefix: this.server.hostname,
+        command: "442",
+        args: [this.client.nick, channel.name],
+        msg: "You're not on that channel"
     })
 
     public errNeedMoreParams = (command: string) => new IRCMessage({

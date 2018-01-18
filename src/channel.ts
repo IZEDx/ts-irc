@@ -1,35 +1,21 @@
 
-import {IIRCChannel, IIRCServer} from "./libs/interfaces";
-
-import {IRCClient} from "./client";
-
-export {IIRCChannel};
-
-type IRCServer = IIRCServer<IRCClient, IRCChannel>;
+import {IIRCChannel, IIRCClient, IIRCServer} from "./libs/interfaces";
 
 /**
  * IRC Channel
  */
 export class IRCChannel implements IIRCChannel {
-    public readonly clients: IRCClient[] = [];
-    public readonly server: IRCServer;
+    public readonly clients: IIRCClient[] = [];
+    public readonly server: IIRCServer;
     public readonly name: string;
-    private _topic: string;
+    public topic: string;
 
-    get topic(): string {
-        return this._topic;
-    }
-
-    set topic(newtopic: string) {
-        this._topic = newtopic;
-    }
-
-    constructor(server: IRCServer, name: string) {
+    constructor(server: IIRCServer, name: string) {
         this.server = server;
         this.name = name;
     }
 
-    public addClient(client: IRCClient) {
+    public addClient(client: IIRCClient) {
         if (this.clients.find(c => c === client) === undefined) {
             this.clients.push(client);
         }
