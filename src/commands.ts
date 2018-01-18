@@ -53,7 +53,7 @@ export class AccountCommands extends CommandLib<IRCClient> {
         } else {
             for (const channel of this.server.channels) {
                 if (channel.clients.find(c => c === client) !== undefined) {
-                    channel.next(cmd.toString());
+                    channel.next(`:${client.identifier} NICK newnick`);
                 }
             }
         }
@@ -92,7 +92,7 @@ export class AccountCommands extends CommandLib<IRCClient> {
         for (const channel of this.server.channels) {
             const idx = channel.clients.indexOf(client);
             if (idx >= 0) {
-                channel.next(cmd.toString());
+                channel.next(`:${client.identifier} QUIT :${cmd.msg}`);
                 channel.clients.splice(idx);
             }
         }
@@ -237,16 +237,17 @@ export class ChannelCommands extends CommandLib<IRCClient> {
             return client.reply.errNeedMoreParams("JOIN");
         }
 
-        let channel = this.server.channels.find(v => v.name === cmd.args[0].toLowerCase().substr(1));
+        const channelname = cmd.args[0].toLowerCase().substr(1);
+        let channel = this.server.channels.find(v => v.name === channelname);
         if (channel === undefined) {
-            channel = new IRCChannel(this.server, cmd.args[0].toLowerCase().substr(1));
+            channel = new IRCChannel(this.server, channelname);
             this.server.channels.push(channel);
         }
 
         channel.addClient(client);
 
         const replies: IRCMessage[] = [
-            client.reply.join(channel.name)
+            client.reply.join("#" + channelname)
         ];
 
         if (channel.topic !== undefined && channel.topic !== "") {
