@@ -1,5 +1,5 @@
 
-import {IIRCClient, IIRCServer, IIRCChannel} from "./libs/interfaces";
+import {IIRCChannel, IIRCClient, IIRCServer} from "./libs/interfaces";
 import {IRCMessage} from "./libs/message";
 
 /**
