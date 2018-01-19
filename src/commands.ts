@@ -281,10 +281,10 @@ export class ChannelCommands extends CommandLib<IRCClient> {
             return client.reply.errNotOnChannel(channel);
         }
 
-        channel.clients.splice(idx);
+        channel.clients.splice(idx, 1);
 
         if (channel.clients.length === 0) {
-            this.server.channels.splice(this.server.channels.indexOf(channel));
+            this.server.channels.splice(this.server.channels.indexOf(channel), 1);
         }
     }
 
