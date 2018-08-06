@@ -4,17 +4,19 @@
   "description": "IRC implementation in TypeScript",
   "main": "dist/main.js",
   "bin": {
-    "ts-irc": "./ts-irc.js"
+    "ts-irc": "./ts-irc.js",
+    "ts-irc-test": "./ts-irc-test.js"
   },
   "scripts": {
-    "build": "./node_modules/.bin/tsc",
-    "watch": "npm run build -- --watch",
     "start": "node ts-irc.js",
-    "lint": "./node_modules/.bin/tslint --project . -t codeFrame --force",
-    "lint-fix": "npm run lint -- --fix",
-    "test": "./node_modules/.bin/mocha -r ts-node/register tests/*.ts",
-    "chirc-test": "python3 -m pytest chirc-tests/ --chirc-exe=./ts-irc.js --randomize-ports --json=chirc-tests/report.json --html=chirc-tests/report.html",
-    "docs": "./node_modules/.bin/typedoc --name ts-irc --readme README.md --module commonjs --target ES5 --excludeExternals --out docs --theme default src/"
+    "test": "node ts-irc-test.js",
+    "dev": "npm run clear && (npm run dev-server & npm run dev-test)",
+    "build": "npm run clear && npm run build-server && npm run build-test",
+    "build-server": "cross-env NODE_ENV=production parcel build src/main.ts --public-url . --out-dir ./dist/ --target node",
+    "build-test": "cross-env NODE_ENV=production parcel build test/test.ts --public-url . --out-dir ./dist/ --target node",
+    "dev-server": "parcel watch src/main.ts --out-dir ./dist/ --target node",
+    "dev-test": "parcel watch test/test.ts --out-dir ./dist/ --target node",
+    "clear": "rm -rf dist"
   },
   "repository": {
     "type": "git",
@@ -27,19 +29,11 @@
   },
   "homepage": "https://github.com/IZEDx/ts-irc#readme",
   "devDependencies": {
-    "@types/chai": "^4.0.10",
-    "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.53",
     "@types/yargs": "^10.0.0",
-    "chai": "^4.1.2",
-    "mocha": "^4.0.1",
-    "ts-node": "^4.0.1",
-    "tslint": "^5.8.0",
-    "tslint-clean-code": "^0.2.0",
-    "tslint-language-service": "^0.9.7",
-    "tslint-microsoft-contrib": "^5.0.1",
-    "typedoc": "^0.9.0",
-    "typescript": "^2.6.2"
+    "parcel-bundler": "latest",
+    "typescript": "^2.6.2",
+    "cross-env": "latest"
   },
   "dependencies": {
     "chalk": "^2.3.0",

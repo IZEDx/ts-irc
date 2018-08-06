@@ -26,5 +26,3 @@ export async function main(args: Arguments) {
 
     log.main("Shutdown.");
 }
-
-export * from "./server";
