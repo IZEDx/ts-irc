@@ -35,6 +35,7 @@ export namespace log {
     export const server         = (...msg: string[]) => logPrefix(chalk.blue.bold("[Server]"), ...msg);
     export const interaction    = (...msg: string[]) => logPrefix(chalk.green.bold("[Interaction]"), ...msg);
     export const debug          = (...msg: string[]) => logPrefix(chalk.yellow.bold("[Debug]"), ...msg);
+    export const test          = (...msg: string[]) => logPrefix(chalk.green.bold("[Test]"), ...msg);
 }
 
 /**
