@@ -1,20 +1,13 @@
 
-import {AsyncOperators as aops, Observable} from "./libs/async";
-import {IIRCClient, IIRCServer} from "./libs/interfaces";
-import {IRCMessage} from "./libs/message";
-import {Transciever} from "./libs/transciever";
+import { IRCMessage, Transciever } from "./libs";
+import { Socket } from "net";
+import { ReplyGenerator, IRCServer } from ".";
 
-import {Socket} from "net";
-import {ReplyGenerator} from "./replies";
-
-export {IIRCClient, ReplyGenerator, IRCMessage};
-
-type IRCServer = IIRCServer<IRCClient>;
 
 /**
  * IRC Client
  */
-export class IRCClient extends Transciever implements IIRCClient {
+export class IRCClient extends Transciever {
 
     public fullname: string = "*";
     public hostname: string;

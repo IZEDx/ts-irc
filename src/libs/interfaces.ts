@@ -1,16 +1,6 @@
 
 import {Server, Socket} from "net";
-import {IAsyncIterable, IHandler, IObserver, ISubject} from "./async";
 
-export {IAsyncIterable, IHandler, IObserver, ISubject};
-
-/**
- * Output stream to the console, has extra columns and rows.
- */
-export type IConsole = NodeJS.WriteStream & {
-    columns: number;
-    rows: number;
-};
 
 /**
  * IRCClient interface
@@ -26,15 +16,6 @@ export interface IIRCClient extends ISubject<string, string> {
     fullname: string;
 }
 
-/**
- * IRCMessage interface
- */
-export interface IIRCMessage {
-    prefix: string;
-    command: string;
-    args: string[];
-    msg: string;
-}
 
 /**
  * Parser interface

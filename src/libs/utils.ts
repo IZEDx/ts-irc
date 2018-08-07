@@ -1,7 +1,7 @@
 
 import chalk from "chalk";
 import {readFile as readFileCallback} from "fs";
-import {IConsole} from "./interfaces";
+import { Spring, Operator } from "plumbing-toolkit";
 
 export {chalk};
 
@@ -71,10 +71,43 @@ export function getOrDefault<V>(m: {[key: string]: V}, key: string, def: V): V {
     return v;
 }
 
+
+/**
+ * Output stream to the console, has extra columns and rows.
+ */
+export type IConsole = NodeJS.WriteStream & {
+    columns: number;
+    rows: number;
+};
+
 /**
  * Checks whether a given object can be considered a Console to output to and read its dimensions.
  * @param object The object to check.
  */
 export function isConsole(object: any): object is IConsole {
     return typeof object === "object" &&  typeof object.columns === "number" && typeof object.rows === "number";
+}
+
+
+export function listen<T>(stream: NodeJS.ReadableStream): Spring<T> {
+    return sink => {
+        const onerr     = (err: Error) => sink.throw(err);
+        const onclose   =           () => sink.return();
+        const ondata    =    (data: T) => sink.next(data);
+
+        stream.once("error", onerr);
+        stream.once("close", onclose);
+        stream.on("data",  ondata);
+
+        return () => {
+            stream.off("error", onerr);
+            stream.off("close", onclose);
+            stream.off("data", ondata);
+        }
+    };
+}
+
+export function stringifier(): Operator<{toString(): string}, string>
+{
+    return input => input.map(obj => obj.toString());
 }

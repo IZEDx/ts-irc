@@ -1,16 +1,22 @@
 
-import {IIRCMessage} from "./interfaces";
-
-export {IIRCMessage};
+/**
+ * IRCMessage interface
+ */
+export interface IIRCMessage {
+    prefix: string;
+    command: string;
+    args: string[];
+    msg: string;
+}
 
 /**
  * A simple IRC Message including prefix, command, args and messagebody.
  */
 export class IRCMessage implements IIRCMessage {
-    public prefix: string;
-    public command: string;
-    public args: string[];
-    public msg: string;
+    public prefix: string = "";
+    public command: string = "";
+    public args: string[] = []; 
+    public msg: string = "";
 
     constructor(message: IIRCMessage) {
         Object.assign(this, message);
