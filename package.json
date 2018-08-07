@@ -4,19 +4,19 @@
   "description": "IRC implementation in TypeScript",
   "main": "dist/main.js",
   "bin": {
-    "ts-irc": "./ts-irc.js",
-    "ts-irc-test": "./ts-irc-test.js"
+    "ts-irc": "./dist/ts-irc.js",
+    "ts-irc-test": "./dist/ts-irc-test.js"
   },
   "scripts": {
-    "start": "node ts-irc.js",
-    "test": "node ts-irc-test.js",
+    "start": "node dist/ts-irc.js",
+    "test": "node dist/ts-irc-test.js",
     "dev": "npm run clear && (npm run dev-server & npm run dev-test)",
     "build": "npm run clear && npm run build-server && npm run build-test",
-    "build-server": "cross-env NODE_ENV=production parcel build src/main.ts --public-url . --out-dir ./dist/ --target node",
-    "build-test": "cross-env NODE_ENV=production parcel build test/test.ts --public-url . --out-dir ./dist/ --target node",
-    "dev-server": "parcel watch src/main.ts --out-dir ./dist/ --target node",
-    "dev-test": "parcel watch test/test.ts --out-dir ./dist/ --target node",
-    "clear": "rm -rf dist"
+    "build-server": "cross-env NODE_ENV=production parcel build src/ts-irc.ts --public-url . --out-dir ./dist/ --target node",
+    "build-test": "cross-env NODE_ENV=production parcel build test/ts-irc-test.ts --public-url . --out-dir ./dist/ --target node",
+    "dev-server": "parcel watch src/ts-irc.ts --out-dir ./dist/ --target node",
+    "dev-test": "parcel watch test/ts-irc-test.ts --out-dir ./dist/ --target node",
+    "clear": "rm -rf dist && rm -rf .cache"
   },
   "repository": {
     "type": "git",
@@ -29,14 +29,15 @@
   },
   "homepage": "https://github.com/IZEDx/ts-irc#readme",
   "devDependencies": {
-    "@types/node": "^8.0.53",
-    "@types/yargs": "^10.0.0",
+    "@types/node": "latest",
+    "@types/yargs": "latest",
     "parcel-bundler": "latest",
-    "typescript": "^2.6.2",
+    "typescript": "next",
     "cross-env": "latest"
   },
   "dependencies": {
-    "chalk": "^2.3.0",
-    "yargs": "^10.0.3"
+    "chalk": "latest",
+    "plumbing-toolkit": "^0.6.5",
+    "yargs": "latest"
   }
 }
